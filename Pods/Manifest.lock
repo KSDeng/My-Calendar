@@ -1,0 +1,32 @@
+PODS:
+  - Alamofire (4.9.1)
+  - DateTimePicker (2.2.0)
+  - LFLoginController (0.3.1)
+  - MJRefresh (3.2.0)
+  - SwiftSoup (2.2.2)
+
+DEPENDENCIES:
+  - Alamofire
+  - DateTimePicker
+  - LFLoginController
+  - MJRefresh
+  - SwiftSoup
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - Alamofire
+    - DateTimePicker
+    - LFLoginController
+    - MJRefresh
+    - SwiftSoup
+
+SPEC CHECKSUMS:
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  DateTimePicker: f65c0ae594e85dcf39d2aaf6a8ce06dee7d15aa7
+  LFLoginController: ded1e7e1f625d6ae9762faf491d74519ce017f46
+  MJRefresh: ed450d6eb9d3346a2cb033ab7eb6de090aeef437
+  SwiftSoup: 77147d707df716eb6dbd06c5c24d35ad5ba62ee1
+
+PODFILE CHECKSUM: 7e607017619819daef58d320e2a352c0aa2a452c
+
+COCOAPODS: 1.5.2

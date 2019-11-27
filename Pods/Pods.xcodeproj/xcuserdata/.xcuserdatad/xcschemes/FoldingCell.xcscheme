@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E7274CF7CF080315532B99653D347208"
-               BlueprintName = "LFLoginController"
+               BlueprintIdentifier = "B626E472969D6F87698AF0041EAAFC38"
+               BlueprintName = "FoldingCell"
                ReferencedContainer = "container:Pods.xcodeproj"
-               BuildableName = "LFLoginController.framework">
+               BuildableName = "FoldingCell.framework">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

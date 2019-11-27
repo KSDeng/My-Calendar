@@ -11,6 +11,6 @@
 #endif
 
 
-FOUNDATION_EXPORT double LFLoginControllerVersionNumber;
-FOUNDATION_EXPORT const unsigned char LFLoginControllerVersionString[];
+FOUNDATION_EXPORT double FoldingCellVersionNumber;
+FOUNDATION_EXPORT const unsigned char FoldingCellVersionString[];
 

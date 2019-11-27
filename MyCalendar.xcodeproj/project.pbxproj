@@ -16,6 +16,10 @@
 		0A86C92C238B828F007F3576 /* AddEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* AddEventController.swift */; };
 		0A9077CC238BA22900FFF1EE /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CB238BA22900FFF1EE /* Event.swift */; };
 		0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CD238BA89300FFF1EE /* CalendarCell.swift */; };
+		0AFFF571238D50B10062A004 /* TaskListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF570238D50B10062A004 /* TaskListController.swift */; };
+		0AFFF573238D51590062A004 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF572238D51590062A004 /* CalendarViewController.swift */; };
+		0AFFF575238D51890062A004 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF574238D51890062A004 /* TaskCell.swift */; };
+		0AFFF577238D63A50062A004 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF576238D63A50062A004 /* TabBarController.swift */; };
 		D60C1CFC7375AF0B6ABE49BC /* Pods_MyCalendar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +35,10 @@
 		0A86C92B238B828F007F3576 /* AddEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventController.swift; sourceTree = "<group>"; };
 		0A9077CB238BA22900FFF1EE /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0A9077CD238BA89300FFF1EE /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		0AFFF570238D50B10062A004 /* TaskListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListController.swift; sourceTree = "<group>"; };
+		0AFFF572238D51590062A004 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
+		0AFFF574238D51890062A004 /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
+		0AFFF576238D63A50062A004 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31B5D092E0F76BB696B6D070 /* Pods-MyCalendar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyCalendar.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar.debug.xcconfig"; sourceTree = "<group>"; };
 		83C9ED2A4D80FDF51D63A66C /* Pods-MyCalendar.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyCalendar.release.xcconfig"; path = "Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar.release.xcconfig"; sourceTree = "<group>"; };
@@ -86,6 +94,9 @@
 			children = (
 				0A86C92B238B828F007F3576 /* AddEventController.swift */,
 				0A86C927238B814B007F3576 /* InitCalendarController.swift */,
+				0AFFF570238D50B10062A004 /* TaskListController.swift */,
+				0AFFF572238D51590062A004 /* CalendarViewController.swift */,
+				0AFFF576238D63A50062A004 /* TabBarController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -95,6 +106,7 @@
 			children = (
 				0A9077CB238BA22900FFF1EE /* Event.swift */,
 				0A9077CD238BA89300FFF1EE /* CalendarCell.swift */,
+				0AFFF574238D51890062A004 /* TaskCell.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -212,7 +224,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/DateTimePicker/DateTimePicker.framework",
-				"${BUILT_PRODUCTS_DIR}/LFLoginController/LFLoginController.framework",
+				"${BUILT_PRODUCTS_DIR}/FoldingCell/FoldingCell.framework",
 				"${BUILT_PRODUCTS_DIR}/MJRefresh/MJRefresh.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftSoup/SwiftSoup.framework",
 			);
@@ -220,7 +232,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DateTimePicker.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/LFLoginController.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FoldingCell.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJRefresh.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftSoup.framework",
 			);
@@ -236,11 +248,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AFFF573238D51590062A004 /* CalendarViewController.swift in Sources */,
 				0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */,
+				0AFFF571238D50B10062A004 /* TaskListController.swift in Sources */,
+				0AFFF577238D63A50062A004 /* TabBarController.swift in Sources */,
 				0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */,
 				0A86C928238B814B007F3576 /* InitCalendarController.swift in Sources */,
 				0A86C92C238B828F007F3576 /* AddEventController.swift in Sources */,
 				0A9077CC238BA22900FFF1EE /* Event.swift in Sources */,
+				0AFFF575238D51890062A004 /* TaskCell.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -12,6 +12,6 @@ target 'MyCalendar' do
   pod 'SwiftSoup'
   pod 'DateTimePicker'
   pod 'MJRefresh'
-  pod 'LFLoginController'
+  pod 'FoldingCell'
 
 end

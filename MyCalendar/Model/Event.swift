@@ -6,29 +6,15 @@
 //  Copyright © 2019 dks. All rights reserved.
 //
 
+import UIKit
 import Foundation
 
-class Event {
-    var title: String = ""
-    var startTime = ""          // TODO: pick by date picker
-    var endTime = ""            // TODO: pick by date picker
-    var location: String?
+struct Event {
+    var title = ""
+    var startTime = Date()
+    var endTime = Date()
+    var location = ""
     var invitations: [String]?
-    var note: String = ""
-    
-    init(st: String, title: String) {
-        self.startTime = st
-        self.title = title
-    }
-    
-    // TODO: data check and alert
-    init(title: String, st: String, et: String, loc: String, invitations: [String]?, note: String) {
-        self.title = title
-        self.startTime = st
-        self.endTime = et
-        self.location = loc
-        self.invitations = invitations
-        self.note = note
-    }
-    
+    var note: String?
+    var color: UIColor?         // Color to show
 }

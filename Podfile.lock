@@ -4,6 +4,7 @@ PODS:
   - FoldingCell (5.0.2)
   - MJRefresh (3.2.0)
   - SwiftSoup (2.2.2)
+  - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - Alamofire
@@ -11,6 +12,7 @@ DEPENDENCIES:
   - FoldingCell
   - MJRefresh
   - SwiftSoup
+  - SwiftyJSON
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -19,6 +21,7 @@ SPEC REPOS:
     - FoldingCell
     - MJRefresh
     - SwiftSoup
+    - SwiftyJSON
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
@@ -26,7 +29,8 @@ SPEC CHECKSUMS:
   FoldingCell: f92eb5fb9842319e7cd08c71533c98408b785099
   MJRefresh: ed450d6eb9d3346a2cb033ab7eb6de090aeef437
   SwiftSoup: 77147d707df716eb6dbd06c5c24d35ad5ba62ee1
+  SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: 332abb111843a2fb033dcd5eeba53f3b199c0af3
+PODFILE CHECKSUM: 3d3fcfc8f95cc339b5a1d9476fdedfa32bc31478
 
 COCOAPODS: 1.5.2

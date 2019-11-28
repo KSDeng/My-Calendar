@@ -13,5 +13,6 @@ target 'MyCalendar' do
   pod 'DateTimePicker'
   pod 'MJRefresh'
   pod 'FoldingCell'
+  pod 'SwiftyJSON'
 
 end

@@ -14,7 +14,6 @@ import DateTimePicker
 
 protocol EditEventDelegate {
     func addEvent(e: Event)
-    func editEvent(e: Event)
 }
 
 
@@ -35,9 +34,21 @@ class AddEventController: UITableViewController {
     // 每个section的行数
     let numberOfRows = [1,2,1,1,1]
     
-    var currentEvent: Event?
+    // 当前事件
+    var currentEvent = Event()
     // 发布任务的代理
     var delegate: EditEventDelegate?
+    
+    // 自定义事件卡片颜色
+    let eventColorArray = [
+        UIColor(red:0.92, green:0.51, blue:0.51, alpha:1.0),            // 红
+        UIColor(red:0.22, green:0.67, blue:0.98, alpha:1.0),            // 蓝
+        UIColor(red:0.88, green:0.50, blue:0.95, alpha:1.0),            // 紫罗兰
+        UIColor(red:0.31, green:0.81, blue:0.26, alpha:1.0),            // 绿
+        UIColor(red:0.95, green:0.93, blue:0.41, alpha:1.0),            // 黄
+        UIColor(red:0.50, green:0.82, blue:0.95, alpha:1.0),            // 天蓝
+        UIColor(red:0.95, green:0.70, blue:0.41, alpha:1.0)             // 橙
+    ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +56,7 @@ class AddEventController: UITableViewController {
         titleTextField.becomeFirstResponder()
         tableView.keyboardDismissMode = .onDrag
         setupTextFields()
+        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -69,25 +81,34 @@ class AddEventController: UITableViewController {
         switch tableView.cellForRow(at: indexPath)?.reuseIdentifier {
         case "startTimeCell":
             print("Start time cell clicked.")
-            // self.view.endEditing(true)
+            self.view.endEditing(true)
             showDateTimePicker(completionHandler: { date in
+                self.currentEvent.startTime = date       // 开始时间
+                
                 let formatter = DateFormatter()
+                formatter.timeZone = .autoupdatingCurrent
                 formatter.dateFormat = "YYYY/MM/dd HH:mm"
                 self.startTimeLabel.text = formatter.string(from: date)
                 self.startTimeLabel.textColor = UIColor.black
             })
         case "endTimeCell":
             print("End time cell clicked.")
+            self.view.endEditing(true)
             showDateTimePicker(completionHandler: {date in
+                self.currentEvent.endTime = date        // 结束时间
+                
                 let formatter = DateFormatter()
+                formatter.timeZone = .autoupdatingCurrent
                 formatter.dateFormat = "YYYY/MM/dd HH:mm"
                 self.endTimeLabel.text = formatter.string(from: date)
                 self.endTimeLabel.textColor = UIColor.black
             })
         case "locationCell":
             print("Location cell clicked.")
+            self.view.endEditing(true)
         case "invitationCell":
             print("Invitation cell clicked.")
+            self.view.endEditing(true)
         default:
             print("Not handle.")
         }
@@ -95,6 +116,7 @@ class AddEventController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    // 添加输入完成按钮
     private func setupTextFields() {
         let toolBar = UIToolbar(frame: CGRect(origin: .zero, size: .init(width: view.frame.width, height: 30)))
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
@@ -110,17 +132,17 @@ class AddEventController: UITableViewController {
         self.view.endEditing(true)
     }
     
+    // 保存事件
+    // TODO: input check, alert
     @IBAction func saveEventAction(_ sender: Any) {
-        currentEvent = Event(title: titleTextField.text ?? "无主题",
-                             st: startTimeLabel.text ?? "未设置开始时间",
-                             et: endTimeLabel.text ?? "未设置结束时间",
-                             loc: locationLabel.text ?? "未设置地点",
-                             invitations: nil,
-                             note: noteTextField.text ?? "未设置备注")
-        if let e = currentEvent {
-            delegate?.addEvent(e: e)
-            navigationController?.popViewController(animated: true)
-        }
+        currentEvent.title = titleTextField.text ?? "(无主题)"
+        currentEvent.location = endTimeLabel.text ?? "(未添加地点)"
+        currentEvent.invitations = nil          // TODO
+        currentEvent.note = noteTextField.text ?? "(未添加备注)"
+        currentEvent.color = eventColorArray[Int.random(in: 0..<eventColorArray.count)]
+        delegate?.addEvent(e: currentEvent)
+        
+        navigationController?.popViewController(animated: true)
         
     }
     
@@ -189,6 +211,7 @@ extension AddEventController: DateTimePickerDelegate {
     }
     
     private func showDateTimePicker(completionHandler: @escaping ((Date) -> Void)) {
+        // 允许的时间范围为过去100天到未来365天
         let min = Date().addingTimeInterval(-60 * 60 * 24 * 100)
         let max = Date().addingTimeInterval(60 * 60 * 24 * 365)
         let picker = DateTimePicker.create(minimumDate: min, maximumDate: max)

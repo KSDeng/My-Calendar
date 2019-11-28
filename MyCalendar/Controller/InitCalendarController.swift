@@ -8,19 +8,28 @@
 
 // References:
 // 1. https://github.com/CoderMJLee/MJRefresh
-
+// 2. https://learnappmaking.com/urlsession-swift-networking-how-to/
+// 3. http://timor.tech/api/holiday     // 节假日API文档
+// 4. https://stackoverflow.com/questions/31018447/how-to-programmatically-have-uitableview-scroll-to-a-specific-section
 
 // MARK: TODO
-// 在未加载的日期添加事件
 // 一件事跨越多天
 // 点击事务卡片弹出详细视图
 // 地点调用地图进行选择
 // 联系人输入邮箱，发邮件邀请
+// 下拉刷新目前有延迟，尝试用tableview原生的refreshControl做到无延迟加载？
+// 目前使用的datetimepicker不够方便
+// 只有列表视图翻起来不方便，最好再加上日历视图
+// 添加事务时不合理弹出Alert
+// 事务开始前提醒
+// 无事务且无节假日的日期可以缩略显示
+// 顶部的title展示目前所在的时间范围
 
 import UIKit
 import MJRefresh
 import Alamofire
 import SwiftyJSON
+import CoreData
 
 class InitCalendarController: UITableViewController {
 
@@ -35,17 +44,15 @@ class InitCalendarController: UITableViewController {
     // 每行的行高
     var heights: [String:CGFloat] = [:]
     
+    var dateToday = ""
+    
     // refresh相关参数
-    let pageSize = 2        // 请求次数每天限100次，省着点用
+    let pageSize = 15
     var startIndex = 0, endIndex = 0
     
-    // 日历请求接口地址
-    let requestURL = "http://v.juhe.cn/calendar/day"        // 当前日期详细信息
-    // 日历请求账号标识
-    let calendarAppkey = "3fb0cb0d93e61a2b4bfe80d74922735c"
+    // 节假日请求接口地址
+    let holidayRequestURL = "http://timor.tech/api/holiday/year"
     
-    // 请求的日期参数格式
-    let requestDateFormat = "yyyy-M-d"
     // 日期索引格式
     let dateIndexFormat = "yyyy-MM-dd"
     
@@ -54,32 +61,50 @@ class InitCalendarController: UITableViewController {
     
     // 一个事件卡片的高度
     let evHeight: CGFloat = 40
+    // 事件卡片颜色指针
+    var colorPoint = 0
     
     // 时间格式化器
     let formatter = DateFormatter()
     
+    // weekday与中文描述对应的map
+    // https://stackoverflow.com/questions/27990503/nsdatecomponents-returns-wrong-weekday
+    let weekDayMap = [ 1:"星期天", 2:"星期一", 3:"星期二", 4:"星期三", 5:"星期四", 6:"星期五", 7:"星期六" ]
+    
+    // 节假日颜色
+    let holidayColor = UIColor(red:0.09, green:0.63, blue:0.52, alpha:1.0)           // 绿
+    
+    // 调休日颜色
+    let adjustDayColor = UIColor(red:0.95, green:0.15, blue:0.07, alpha:1.0)        // 红
+    
+    // 年份是否已经获取了节假日信息
+    var ifHolidayGot = Set<String>()
     
     // 视图即将出现时完成初始化加载
     override func viewWillAppear(_ animated: Bool) {
         setup()
-        if (endIndex == 0){
-            upPullRefresh()
-        }
         if (startIndex == 0){
-            downPullRefresh()
+            loadRefresh(number: pageSize/2, direction: false)
         }
-        
+        if (endIndex == 0){
+            loadRefresh(number: pageSize, direction: true)
+        }
+        let year = getDateAsFormat(date: Date(), format: "yyyy")
+        if (!ifHolidayGot.contains(year)){
+            requestHolidayInfo(year: Int(year)!)
+            ifHolidayGot.insert(year)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
         // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         
+        // tableView.scrollToRow(at: IndexPath(row: pageSize, section: 0), at: .middle, animated: true)
     }
     
     
@@ -101,67 +126,83 @@ class InitCalendarController: UITableViewController {
         // 初始化加载数据
         // upPullRefresh()
         
-        
     }
     
     // 请求某天详细信息，参数为该天到今天的距离(之前为负，之后为正)
     private func requestDayInfo(daysFromToday: Int){
         // print("Days from today: \(daysFromToday)")
-        let getDate = Date.init(timeIntervalSinceNow: 60*60*24*Double(daysFromToday))
-        let requestDate = getDateAsFormat(date: getDate, format: requestDateFormat) // 发送请求的日期格式
-        let dateKey = getDateAsFormat(date: getDate, format: dateIndexFormat)       // 加入days数组中用于查询的索引
         
-        print("Request date: \(requestDate)")
+        let date = dateForDayFromNow(daysInterval: daysFromToday)
+        // print("Get date info of: \(date)")
         
-        let parameters = [
-            "key": calendarAppkey,
-            "date": requestDate
-        ]
+        let dateKey = getDateAsFormat(date: date, format: "yyyy-MM-dd")
         
-        // 当请求次数用完时用于调试的替代内容
+        let dateContent = getDateAsFormat(date: date, format: "yyyy.MM.dd")
         
-        //let content = "aaaaaaaaaaaaaaaaa"
-        //updateDataSource(content: content, index: daysFromToday, dateKey: dateKey)
+        let weekDayContent = weekDayMap[Calendar.current.component(.weekday, from: date)]!
         
-        
-        Alamofire.request(requestURL, parameters: parameters).responseJSON(completionHandler: { response in
-            if let json = response.result.value {
-                let dataJSON = JSON(json)
-                    
-                let dateToday = dataJSON["result","data","date"].stringValue
-                let weekday = dataJSON["result","data","weekday"].stringValue
-                let lunar = dataJSON["result","data","lunar"].stringValue
-                    
-                // 获取显示的内容
-                //let content = "\(dateToday) \(weekday) 农历\(lunar)"
-                let content = "11.28 星期四 农历十一月初三"
-                //print("Content: \(content)")
-                self.updateDataSource(content: content, index: daysFromToday, dateKey: dateKey)
-            }
-        })
-        
+        let year = getDateAsFormat(date: date, format: "yyyy")
+        if(!ifHolidayGot.contains(year)){
+            requestHolidayInfo(year: Int(year)!)
+            ifHolidayGot.insert(year)
+        }
+        updateDataSource(content: "\(dateContent)  \(weekDayContent)", index: daysFromToday, dateKey: dateKey)
         
     }
     
+    // daysInterval为与今天的推移天数
+    // -1表示昨天此时，1表示明天此时
+    private func dateForDayFromNow(daysInterval: Int) -> Date {
+        return Date.init(timeInterval:  Double(daysInterval) * 24 * 60 * 60, since: Date())
+    }
     
     // 请求某天所在月份的节假日信息，参数为该天到今天的距离(之前为负，之后为正)
-    private func requestHolidayInfo(aroundDateFromToday: Int){
-        
+    private func requestHolidayInfo(year: Int){
+        print("Request holiday info of \(year)")
+        let url = "\(holidayRequestURL)/\(year)"
+        Alamofire.request(url).responseJSON(completionHandler: {
+            response in
+            if let json = response.result.value {
+                let data = JSON(json)
+                let holidays = data["holiday"]
+                // traverse the holidays
+                for (_, holiday):(String, JSON) in holidays{
+                    // print("")
+                    // print(holiday)
+                    let targetDate = holiday["date"].stringValue
+                    let name = holiday["name"].stringValue
+                    var hEvent = Event()
+                    hEvent.type = .Holiday
+                    hEvent.title = name
+                    // 节假日和调休分别使用不同的颜色
+                    hEvent.color = holiday["holiday"].boolValue ? self.holidayColor : self.adjustDayColor
+                    self.doAddEvent(targetDateIndex: targetDate, e: hEvent)
+                }
+            }
+        })
     }
     
     // 更新数据源
     private func updateDataSource(content: String, index: Int, dateKey: String){
         
         // print("Update data: \(content)")
+        if index == 0 {
+            days.append((dateKey, content))
+            dateToday = dateKey
+        } else if index < 0 {
+            days.insert((dateKey, content), at: 0)
+        } else{
+            days.append((dateKey, content))
+        }
         
-        index < 0 ? days.insert((dateKey, content), at: 0) : days.append((dateKey, content))
-        days.sort(by: {$0.0 < $1.0})
+        // days.sort(by: {$0.0 < $1.0})
         
         // 设置对应行高
-        heights[dateKey] = rowHeight
+        // 当前不包含该天时设置，否则会将添加的事件遮盖
+        if !heights.keys.contains(dateKey){
+            heights[dateKey] = rowHeight
+        }
         
-        // MARK: TODO 不需要每次都重新加载tableview
-        tableView.reloadData()
     }
     
 
@@ -176,15 +217,39 @@ class InitCalendarController: UITableViewController {
         // #warning Incomplete implementation, return the number of rows
         return days.count
     }
-
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CalendarCell", for: indexPath) as! CalendarCell
         let day = days[indexPath.row]
         // 显示该天对应的文字提示
         cell.dateLabel.text = day.1
+        // 今天
+        // MARK: TODO, this will cause reuse error, reason unknown
+        // duplicated cell error caused by reusing cell dequeue
+        // Solved: https://fluffy.es/solve-duplicated-cells/
+        if dateToday == day.0 {
+            // ref: https://stackoverflow.com/questions/43655507/ios-swift-setting-view-frame-position-programmatically/43656052#43656052
+            // print("This seems today? \(day.0)")
+            cell.noteView.isHidden = false
+            cell.noteView.frame.origin.x = cell.bounds.maxX - 35
+            cell.noteView.frame.origin.y = cell.bounds.minY + 12
+            cell.noteView.frame.size.width = 18
+            cell.noteView.frame.size.height = 18
+            cell.noteView.layer.cornerRadius = cell.noteView.frame.size.width / 2
+            cell.noteView.backgroundColor = UIColor(red:0.10, green:0.71, blue:1.00, alpha:1.0)
+            
+            /*
+            let todayNote = UIView(frame: CGRect(x: cell.bounds.maxX - 35, y: cell.bounds.minY + 12, width: 18, height: 18))
+            todayNote.layer.cornerRadius = todayNote.frame.size.width / 2
+            todayNote.clipsToBounds = true
+            todayNote.backgroundColor = UIColor(red:0.10, green:0.71, blue:1.00, alpha:1.0)
+            
+            cell.addSubview(todayNote)
+            */
+        }
         
         // 显示该天对应的事件
+        // 添加的事件其实也会被重用(duplicated)，看不到是因为高度的原因被隐藏了
         if let getEvents = events[day.0]{
             // print("Get events \(day.0): \(getEvents)")
             
@@ -200,14 +265,27 @@ class InitCalendarController: UITableViewController {
                 eventView.backgroundColor = getEvent.color!
                 eventView.layer.cornerRadius = 5
                 
-                let label = UILabel(frame: CGRect(x: eventView.bounds.minX + 16, y: eventView.bounds.minY + 7, width: eventView.bounds.width * 0.8, height: eventView.bounds.height * 0.6))
+                let titleLabel = UILabel(frame: CGRect(x: eventView.bounds.minX + 16, y: eventView.bounds.minY + 7, width: 200, height: eventView.bounds.height * 0.6))
+                titleLabel.text = getEvent.title
+                titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+                titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
+                // 避免字体自适应后的位置偏移
+                // https://stackoverflow.com/questions/26649909/text-not-vertically-centered-in-uilabel
+                titleLabel.baselineAdjustment = .alignCenters
+                eventView.addSubview(titleLabel)
                 
+                if getEvent.type == .Task {
+                    let timeLabel = UILabel(frame: CGRect(x: eventView.bounds.maxX - 120, y: eventView.bounds.minY + 7, width: 150, height: eventView.bounds.height * 0.6))
+                    
+                    let startTime = getDateAsFormat(date: getEvent.startTime, format: "HH:mm")
+                    let endTime = getDateAsFormat(date: getEvent.endTime, format: "HH:mm")
+                    
+                    timeLabel.text = "\(startTime) ~ \(endTime)"
+                    timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+                    
+                    eventView.addSubview(timeLabel)
+                }
                 
-                let startTime = getDateAsFormat(date: getEvent.startTime, format: "HH:mm")
-                let endTime = getDateAsFormat(date: getEvent.endTime, format: "HH:mm")
-                label.text = "\(getEvent.title)    \(startTime) ~ \(endTime)"
-                label.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
-                eventView.addSubview(label)
                 cell.addSubview(eventView)
                 
             }
@@ -225,29 +303,34 @@ class InitCalendarController: UITableViewController {
     
     // 下拉刷新
     @objc private func downPullRefresh() {
-        
-        for i in ((startIndex - pageSize) ..< startIndex).reversed() {
-            DispatchQueue.global(qos: .userInteractive).async {
-                self.requestDayInfo(daysFromToday: i)
-            }
-        }
-        
-        startIndex -= pageSize
-        tableView.mj_header.endRefreshing()
+        loadRefresh(number: pageSize, direction: false)
     
     }
     
     // 上拉刷新
     @objc private func upPullRefresh() {
-        
-        for i in (endIndex ..< (endIndex + pageSize)) {
-            DispatchQueue.global(qos: .userInteractive).async {
+        loadRefresh(number: pageSize, direction: true)
+    }
+    
+    // 刷新加载
+    // direction == true, 上拉; direction == false, 下拉
+    private func loadRefresh(number: Int, direction: Bool){
+    
+        if direction {
+            for i in (endIndex ..< (endIndex + number)){
                 self.requestDayInfo(daysFromToday: i)
             }
+            endIndex += number
+            tableView.reloadData()
+            tableView.mj_footer.endRefreshing()
+        }else {
+            for i in ((startIndex - number) ..< startIndex).reversed() {
+                self.requestDayInfo(daysFromToday: i)
+            }
+            startIndex -= pageSize
+            tableView.reloadData()
+            tableView.mj_header.endRefreshing()
         }
-        
-        endIndex += pageSize
-        tableView.mj_footer.endRefreshing()
     }
 
     /*
@@ -295,6 +378,11 @@ class InitCalendarController: UITableViewController {
         if segue.identifier == "addEventSegue" {
             let dest = (segue.destination) as! AddEventController
             dest.delegate = self
+            
+            // 事件卡片颜色轮播
+            dest.colorPoint = self.colorPoint
+            colorPoint = (colorPoint + 1) % (dest.eventColorArray.count)
+            
         }
         
     }
@@ -306,33 +394,36 @@ class InitCalendarController: UITableViewController {
         return formatter.string(from: date)
     }
     
-}
-
-extension InitCalendarController: EditEventDelegate {
-    func addEvent(e: Event) {
-        // print("Add \(e) in init calendar controller.")
-        
-        let targetDateIndex = getDateAsFormat(date: e.startTime, format: dateIndexFormat)
-        
+    private func doAddEvent(targetDateIndex: String, e: Event){
         if events.keys.contains(targetDateIndex) {
             events[targetDateIndex]!.append(e)
             events[targetDateIndex]!.sort(by: {$0.startTime < $1.startTime})
         } else {
             events[targetDateIndex] = [e]
         }
-        // print("Events: \(events)")
         
-        // MARK: TODO what if this day hasn't been loaded?
-        // 则从当前位置加载到那一天，并显示上去
         if heights.keys.contains(targetDateIndex){
             heights[targetDateIndex]! += (evHeight + 2)
         } else {
-            
+            // print("Here again!")
             heights[targetDateIndex] = rowHeight + evHeight + 2
         }
+    }
+    
+    
+    @IBAction func backToToday(_ sender: UIBarButtonItem) {
+        tableView.scrollToRow(at: IndexPath(row: -startIndex - 8, section: 0), at: .middle, animated: true)
+    }
+    
+}
+
+extension InitCalendarController: EditEventDelegate {
+    func addEvent(e: Event) {
+        // print("Add \(e) in init calendar controller.")
+        let targetDateIndex = getDateAsFormat(date: e.startTime, format: dateIndexFormat)
+        doAddEvent(targetDateIndex: targetDateIndex, e: e)
         
         tableView.reloadData()
-        
     }
     
     

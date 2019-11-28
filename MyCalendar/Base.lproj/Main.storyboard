@@ -3,6 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -560,31 +561,34 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CalendarCell" rowHeight="44" id="iLJ-kh-F9Z" customClass="CalendarCell" customModule="MyCalendar" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="414" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CalendarCell" rowHeight="73" id="iLJ-kh-F9Z" customClass="CalendarCell" customModule="MyCalendar" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="414" height="73"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="iLJ-kh-F9Z" id="gsr-hu-DAE">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="73"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="23S-Vi-zPa">
-                                            <rect key="frame" x="20" y="11" width="42" height="21.5"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="21.5" id="wMK-ns-wPt"/>
-                                            </constraints>
+                                            <rect key="frame" x="20" y="11" width="42" height="20.5"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wqS-Ng-Bn8">
+                                            <rect key="frame" x="346" y="19" width="36" height="35"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </view>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="23S-Vi-zPa" secondAttribute="trailing" constant="20" symbolic="YES" id="TsN-Us-i9p"/>
-                                        <constraint firstItem="23S-Vi-zPa" firstAttribute="leading" secondItem="gsr-hu-DAE" secondAttribute="leadingMargin" id="U0p-f1-7sb"/>
-                                        <constraint firstItem="23S-Vi-zPa" firstAttribute="top" secondItem="gsr-hu-DAE" secondAttribute="topMargin" id="zv5-eb-JNg"/>
+                                        <constraint firstItem="23S-Vi-zPa" firstAttribute="top" secondItem="gsr-hu-DAE" secondAttribute="topMargin" id="7Wz-OT-Idb"/>
+                                        <constraint firstItem="23S-Vi-zPa" firstAttribute="leading" secondItem="gsr-hu-DAE" secondAttribute="leadingMargin" id="IMh-RK-xfC"/>
+                                        <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="23S-Vi-zPa" secondAttribute="trailing" constant="20" symbolic="YES" id="tiV-pw-YL2"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="dateLabel" destination="23S-Vi-zPa" id="0r6-rr-kl5"/>
+                                    <outlet property="noteView" destination="wqS-Ng-Bn8" id="3L7-gy-K3U"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -595,16 +599,44 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="日历" id="ybA-FW-aBK">
                         <barButtonItem key="backBarButtonItem" title="取消" id="qv0-Ob-T78"/>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="7qE-4d-hns">
-                            <connections>
-                                <segue destination="o60-Of-01u" kind="show" identifier="addEventSegue" id="Wou-OQ-QHl"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem systemItem="add" id="7qE-4d-hns">
+                                <connections>
+                                    <segue destination="o60-Of-01u" kind="show" identifier="addEventSegue" id="Wou-OQ-QHl"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="今天" id="pa6-DX-3bf">
+                                <connections>
+                                    <action selector="backToToday:" destination="HPW-8Y-n45" id="NJS-j3-e3W"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cyg-Ru-C18" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2234.7826086956525" y="582.58928571428567"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="Z97-BX-VoN">
+            <objects>
+                <viewController id="h1u-wG-G2w" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="dOr-XL-6qK">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <datePicker contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" translatesAutoresizingMaskIntoConstraints="NO" id="ZOJ-mN-BYO">
+                                <rect key="frame" x="0.0" y="217" width="414" height="216"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            </datePicker>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <viewLayoutGuide key="safeArea" id="K38-v5-hfE"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="xgh-Oa-Qgq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1895" y="1217"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="gZe-TA-rPk">

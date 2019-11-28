@@ -41,14 +41,13 @@ class AddEventController: UITableViewController {
     
     // 自定义事件卡片颜色
     let eventColorArray = [
-        UIColor(red:0.92, green:0.51, blue:0.51, alpha:1.0),            // 红
         UIColor(red:0.22, green:0.67, blue:0.98, alpha:1.0),            // 蓝
+        UIColor(red:0.90, green:0.39, blue:0.39, alpha:1.0),            // 红
         UIColor(red:0.88, green:0.50, blue:0.95, alpha:1.0),            // 紫罗兰
-        UIColor(red:0.31, green:0.81, blue:0.26, alpha:1.0),            // 绿
-        UIColor(red:0.95, green:0.93, blue:0.41, alpha:1.0),            // 黄
-        UIColor(red:0.50, green:0.82, blue:0.95, alpha:1.0),            // 天蓝
-        UIColor(red:0.95, green:0.70, blue:0.41, alpha:1.0)             // 橙
+        UIColor(red:0.39, green:0.90, blue:0.90, alpha:1.0)             // 靓
     ]
+    // 事件卡片颜色指针
+    var colorPoint = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -135,11 +134,14 @@ class AddEventController: UITableViewController {
     // 保存事件
     // TODO: input check, alert
     @IBAction func saveEventAction(_ sender: Any) {
-        currentEvent.title = titleTextField.text ?? "(无主题)"
-        currentEvent.location = endTimeLabel.text ?? "(未添加地点)"
+        currentEvent.type = .Task
+        currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+        currentEvent.location = endTimeLabel.text!.isEmpty ? "(未添加地点)" : endTimeLabel.text!
         currentEvent.invitations = nil          // TODO
-        currentEvent.note = noteTextField.text ?? "(未添加备注)"
-        currentEvent.color = eventColorArray[Int.random(in: 0..<eventColorArray.count)]
+        currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+        // print("ColorPoint: \(colorPoint)")
+        currentEvent.color = eventColorArray[colorPoint]
+        
         delegate?.addEvent(e: currentEvent)
         
         navigationController?.popViewController(animated: true)

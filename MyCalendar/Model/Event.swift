@@ -9,7 +9,14 @@
 import UIKit
 import Foundation
 
+// 事件种类
+// 任务、节假日、节假日调休
+enum EventType {
+    case Task, Holiday, Adjust
+}
+
 struct Event {
+    var type = EventType.Task
     var title = ""
     var startTime = Date()
     var endTime = Date()

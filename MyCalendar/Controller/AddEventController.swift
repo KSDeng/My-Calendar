@@ -12,10 +12,17 @@
 import UIKit
 import DateTimePicker
 
-protocol EditEventDelegate {
+protocol AddEventDelegate {
     func addEvent(e: Event)
 }
 
+protocol EditEventDelegate {
+    func editEvent(e: Event, dateIndex: String, eventIndex: Int)
+}
+
+enum EnterType {
+    case Add, Edit, Default
+}
 
 class AddEventController: UITableViewController {
 
@@ -37,7 +44,15 @@ class AddEventController: UITableViewController {
     // 当前事件
     var currentEvent = Event()
     // 发布任务的代理
-    var delegate: EditEventDelegate?
+    var addDelegate: AddEventDelegate?
+    var editDelegate: EditEventDelegate?
+    
+    // 索引，用于编辑事件
+    var dateIndex: String?
+    var eventIndex: Int?
+    
+    // 进入当前视图的方式(增加和编辑)
+    var enterType = EnterType.Default
     
     // 自定义事件卡片颜色
     let eventColorArray = [
@@ -49,6 +64,21 @@ class AddEventController: UITableViewController {
     // 事件卡片颜色指针
     var colorPoint = 0
     
+    // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
+    // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // 编辑动作进入之前记得设置currentEvent
+        if enterType == .Edit {
+            //print("Enter type: edit")
+            titleTextField.text = currentEvent.title
+            startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.startTime, format: "HH:mm")
+            endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.endTime, format: "HH:mm")
+            locationLabel.text = currentEvent.location
+            invitationLabel.text = ""
+            noteTextField.text = currentEvent.note ?? ""
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -136,16 +166,27 @@ class AddEventController: UITableViewController {
     @IBAction func saveEventAction(_ sender: Any) {
         currentEvent.type = .Task
         currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-        currentEvent.location = endTimeLabel.text!.isEmpty ? "(未添加地点)" : endTimeLabel.text!
+        currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
         currentEvent.invitations = nil          // TODO
         currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
         // print("ColorPoint: \(colorPoint)")
         currentEvent.color = eventColorArray[colorPoint]
-        
-        delegate?.addEvent(e: currentEvent)
-        
+        addDelegate?.addEvent(e: currentEvent)
         navigationController?.popViewController(animated: true)
         
+    }
+    
+    @objc func confirmEditButtonClicked(){
+        // print("Confirm button clicked in add event view controller")
+        if let title = titleTextField.text, !title.isEmpty {
+            currentEvent.title = title
+        }else{
+            currentEvent.title = "(无主题)"
+        }
+        currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
+        currentEvent.invitations = nil          // TODO
+        currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+        editDelegate?.editEvent(e: currentEvent, dateIndex: dateIndex!, eventIndex: eventIndex!)
     }
     
 

@@ -11,19 +11,19 @@
 // 2. https://learnappmaking.com/urlsession-swift-networking-how-to/
 // 3. http://timor.tech/api/holiday     // 节假日API文档
 // 4. https://stackoverflow.com/questions/31018447/how-to-programmatically-have-uitableview-scroll-to-a-specific-section
+// 5. https://digitalleaves.com/segues-navigation-ios-basics/
 
 // MARK: TODO
 // 一件事跨越多天
-// 点击事务卡片弹出详细视图
 // 地点调用地图进行选择
 // 联系人输入邮箱，发邮件邀请
-// 下拉刷新目前有延迟，尝试用tableview原生的refreshControl做到无延迟加载？
 // 目前使用的datetimepicker不够方便
 // 只有列表视图翻起来不方便，最好再加上日历视图
 // 添加事务时不合理弹出Alert
 // 事务开始前提醒
 // 无事务且无节假日的日期可以缩略显示
 // 顶部的title展示目前所在的时间范围
+// 动态的view添加constraints以适应所有设备
 
 import UIKit
 import MJRefresh
@@ -261,7 +261,12 @@ class InitCalendarController: UITableViewController {
                 // let evY = cell.bounds.minY + rowHeight + index * (evHeight + 2) + 2      // Too long to be compiled
                 var evY = cell.bounds.minY + rowHeight + 2
                 evY += (CGFloat(index) * (evHeight + 2))
-                let eventView = UIView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                
+                let eventView = UIEventView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                // let eventView = UIView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                eventView.dateIndex = day.0
+                eventView.eventIndex = index
+                eventView.event = getEvent
                 eventView.backgroundColor = getEvent.color!
                 eventView.layer.cornerRadius = 5
                 
@@ -283,15 +288,36 @@ class InitCalendarController: UITableViewController {
                     timeLabel.text = "\(startTime) ~ \(endTime)"
                     timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
                     
+                    // 任务添加点击事件
+                    let gesture = UITapGestureRecognizer(target: self, action: #selector(eventViewTapped))
+                    eventView.addGestureRecognizer(gesture)
+                    
                     eventView.addSubview(timeLabel)
                 }
-                
                 cell.addSubview(eventView)
                 
             }
         }
         
         return cell
+    }
+    
+    // 点击事件视图
+    @objc func eventViewTapped(sender: UITapGestureRecognizer){
+        // print("Event view tapped!")
+        let getView = sender.view as! UIEventView
+        
+        let detailController = EventDetailViewController()
+        // 传递数据
+        detailController.dateIndex = getView.dateIndex
+        detailController.eventIndex = getView.eventIndex
+        detailController.event = getView.event
+        // 设置代理
+        detailController.deleteDelegate = self
+        detailController.editDelegate = self
+        // 展示详细内容
+        //show(detailController, sender: self)
+        present(detailController, animated: true, completion: nil)
     }
     
     
@@ -377,10 +403,12 @@ class InitCalendarController: UITableViewController {
         // Pass the selected object to the new view controller.
         if segue.identifier == "addEventSegue" {
             let dest = (segue.destination) as! AddEventController
-            dest.delegate = self
+            dest.addDelegate = self
             
             // 事件卡片颜色轮播
             dest.colorPoint = self.colorPoint
+            // 动作为增加事件
+            dest.enterType = .Add
             colorPoint = (colorPoint + 1) % (dest.eventColorArray.count)
             
         }
@@ -415,9 +443,18 @@ class InitCalendarController: UITableViewController {
         tableView.scrollToRow(at: IndexPath(row: -startIndex - 8, section: 0), at: .middle, animated: true)
     }
     
+    /*
+    @IBAction func testLoadFromStoryBoard(_ sender: Any) {
+        // 从storyboard加载View Controller
+        // https://coderwall.com/p/cjuzng/swift-instantiate-a-view-controller-using-its-storyboard-name-in-xcode
+        let vc: AddEventController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! AddEventController
+        show(vc, sender: self)
+        // present(vc, animated: true, completion: nil)
+    }
+    */
 }
 
-extension InitCalendarController: EditEventDelegate {
+extension InitCalendarController: AddEventDelegate {
     func addEvent(e: Event) {
         // print("Add \(e) in init calendar controller.")
         let targetDateIndex = getDateAsFormat(date: e.startTime, format: dateIndexFormat)
@@ -425,6 +462,32 @@ extension InitCalendarController: EditEventDelegate {
         
         tableView.reloadData()
     }
+}
+
+extension InitCalendarController: DeleteEventDelegate {
     
+    func deleteEvent(dateIndex: String, eventIndex: Int) {
+        if let eventsOfDay = events[dateIndex], eventsOfDay.count - 1 >= eventIndex {
+            events[dateIndex]!.remove(at: eventIndex)
+            if events[dateIndex]!.count == 0{
+                events[dateIndex] = nil
+            }
+        } else {
+            print("Delete error, event does not exist.")
+        }
+        heights[dateIndex]! -= (evHeight + 2)
+        tableView.reloadData()
+    }
+}
+
+extension InitCalendarController: EditEventSecondDelegate {
+    func editEventSecond(e: Event, dateIndex: String, eventIndex: Int) {
+        if let eventsOfDay = events[dateIndex], eventsOfDay.count - 1 >= eventIndex {
+            events[dateIndex]![eventIndex] = e
+        } else {
+            print("Edit error, event does not exist.")
+        }
+        tableView.reloadData()
+    }
     
 }

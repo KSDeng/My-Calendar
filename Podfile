@@ -9,10 +9,9 @@ target 'MyCalendar' do
 
   # Pods for MyCalendar
   pod 'Alamofire'
-  pod 'SwiftSoup'
   pod 'DateTimePicker'
   pod 'MJRefresh'
-  pod 'FoldingCell'
   pod 'SwiftyJSON'
+  pod 'RealmSwift'
 
 end

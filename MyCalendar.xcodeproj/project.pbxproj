@@ -7,26 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A09C3372392507600871FD6 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A09C3362392507600871FD6 /* Utils.swift */; };
 		0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16E4642390DFE1003685C1 /* UIEventView.swift */; };
-		0A16E4672390E1A9003685C1 /* EventDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16E4662390E1A9003685C1 /* EventDetailViewController.swift */; };
 		0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A419BFB2378EF9400CB415D /* AppDelegate.swift */; };
 		0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A419BFD2378EF9400CB415D /* SceneDelegate.swift */; };
 		0A419C032378EF9400CB415D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C012378EF9400CB415D /* Main.storyboard */; };
 		0A419C052378EF9500CB415D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C042378EF9500CB415D /* Assets.xcassets */; };
 		0A419C082378EF9500CB415D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C062378EF9500CB415D /* LaunchScreen.storyboard */; };
-		0A86C928238B814B007F3576 /* InitCalendarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* InitCalendarController.swift */; };
-		0A86C92C238B828F007F3576 /* AddEventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* AddEventController.swift */; };
+		0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* CalendarViewController.swift */; };
+		0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* EventProcessController.swift */; };
 		0A9077CC238BA22900FFF1EE /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CB238BA22900FFF1EE /* Event.swift */; };
 		0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CD238BA89300FFF1EE /* CalendarCell.swift */; };
-		0AA86A3923914EBE00FBF4AE /* common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA86A3823914EBE00FBF4AE /* common.swift */; };
-		0AFFF571238D50B10062A004 /* TaskListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF570238D50B10062A004 /* TaskListController.swift */; };
-		0AFFF575238D51890062A004 /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFFF574238D51890062A004 /* TaskCell.swift */; };
 		D60C1CFC7375AF0B6ABE49BC /* Pods_MyCalendar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0A09C3362392507600871FD6 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		0A16E4642390DFE1003685C1 /* UIEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventView.swift; sourceTree = "<group>"; };
-		0A16E4662390E1A9003685C1 /* EventDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailViewController.swift; sourceTree = "<group>"; };
 		0A419BF82378EF9400CB415D /* MyCalendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCalendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A419BFB2378EF9400CB415D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0A419BFD2378EF9400CB415D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -34,13 +31,10 @@
 		0A419C042378EF9500CB415D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A419C072378EF9500CB415D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0A419C092378EF9500CB415D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0A86C927238B814B007F3576 /* InitCalendarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitCalendarController.swift; sourceTree = "<group>"; };
-		0A86C92B238B828F007F3576 /* AddEventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventController.swift; sourceTree = "<group>"; };
+		0A86C927238B814B007F3576 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
+		0A86C92B238B828F007F3576 /* EventProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProcessController.swift; sourceTree = "<group>"; };
 		0A9077CB238BA22900FFF1EE /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0A9077CD238BA89300FFF1EE /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
-		0AA86A3823914EBE00FBF4AE /* common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = common.swift; sourceTree = "<group>"; };
-		0AFFF570238D50B10062A004 /* TaskListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListController.swift; sourceTree = "<group>"; };
-		0AFFF574238D51890062A004 /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
 		1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31B5D092E0F76BB696B6D070 /* Pods-MyCalendar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyCalendar.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar.debug.xcconfig"; sourceTree = "<group>"; };
 		83C9ED2A4D80FDF51D63A66C /* Pods-MyCalendar.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyCalendar.release.xcconfig"; path = "Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar.release.xcconfig"; sourceTree = "<group>"; };
@@ -87,6 +81,7 @@
 				0A419C042378EF9500CB415D /* Assets.xcassets */,
 				0A419C062378EF9500CB415D /* LaunchScreen.storyboard */,
 				0A419C092378EF9500CB415D /* Info.plist */,
+				0A09C3362392507600871FD6 /* Utils.swift */,
 			);
 			path = MyCalendar;
 			sourceTree = "<group>";
@@ -94,11 +89,8 @@
 		0A86C92D238B8298007F3576 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				0A86C92B238B828F007F3576 /* AddEventController.swift */,
-				0A86C927238B814B007F3576 /* InitCalendarController.swift */,
-				0AFFF570238D50B10062A004 /* TaskListController.swift */,
-				0A16E4662390E1A9003685C1 /* EventDetailViewController.swift */,
-				0AA86A3823914EBE00FBF4AE /* common.swift */,
+				0A86C92B238B828F007F3576 /* EventProcessController.swift */,
+				0A86C927238B814B007F3576 /* CalendarViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -108,7 +100,6 @@
 			children = (
 				0A9077CB238BA22900FFF1EE /* Event.swift */,
 				0A9077CD238BA89300FFF1EE /* CalendarCell.swift */,
-				0AFFF574238D51890062A004 /* TaskCell.swift */,
 				0A16E4642390DFE1003685C1 /* UIEventView.swift */,
 			);
 			path = Model;
@@ -227,18 +218,18 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/DateTimePicker/DateTimePicker.framework",
-				"${BUILT_PRODUCTS_DIR}/FoldingCell/FoldingCell.framework",
 				"${BUILT_PRODUCTS_DIR}/MJRefresh/MJRefresh.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftSoup/SwiftSoup.framework",
+				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
+				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DateTimePicker.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FoldingCell.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJRefresh.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftSoup.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -254,15 +245,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */,
-				0AFFF571238D50B10062A004 /* TaskListController.swift in Sources */,
 				0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */,
-				0AA86A3923914EBE00FBF4AE /* common.swift in Sources */,
-				0A86C928238B814B007F3576 /* InitCalendarController.swift in Sources */,
-				0A86C92C238B828F007F3576 /* AddEventController.swift in Sources */,
+				0A09C3372392507600871FD6 /* Utils.swift in Sources */,
+				0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */,
+				0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */,
 				0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */,
-				0A16E4672390E1A9003685C1 /* EventDetailViewController.swift in Sources */,
 				0A9077CC238BA22900FFF1EE /* Event.swift in Sources */,
-				0AFFF575238D51890062A004 /* TaskCell.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -23,5 +23,5 @@ struct Event {
     var location = ""
     var invitations: [String]?
     var note: String?
-    var color: UIColor?         // Color to show
+    var colorPoint = 0
 }

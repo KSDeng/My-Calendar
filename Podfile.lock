@@ -1,36 +1,38 @@
 PODS:
   - Alamofire (4.9.1)
   - DateTimePicker (2.2.0)
-  - FoldingCell (5.0.2)
   - MJRefresh (3.2.0)
-  - SwiftSoup (2.2.2)
+  - Realm (3.21.0):
+    - Realm/Headers (= 3.21.0)
+  - Realm/Headers (3.21.0)
+  - RealmSwift (3.21.0):
+    - Realm (= 3.21.0)
   - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - Alamofire
   - DateTimePicker
-  - FoldingCell
   - MJRefresh
-  - SwiftSoup
+  - RealmSwift
   - SwiftyJSON
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
     - DateTimePicker
-    - FoldingCell
     - MJRefresh
-    - SwiftSoup
+    - Realm
+    - RealmSwift
     - SwiftyJSON
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   DateTimePicker: f65c0ae594e85dcf39d2aaf6a8ce06dee7d15aa7
-  FoldingCell: f92eb5fb9842319e7cd08c71533c98408b785099
   MJRefresh: ed450d6eb9d3346a2cb033ab7eb6de090aeef437
-  SwiftSoup: 77147d707df716eb6dbd06c5c24d35ad5ba62ee1
+  Realm: 38e9dcb19104b58407167d99f70d4995f7c16023
+  RealmSwift: 3183cc1ad48378fbcd634311b22c0e6c44021152
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: 3d3fcfc8f95cc339b5a1d9476fdedfa32bc31478
+PODFILE CHECKSUM: ebdf71409b04663fac60eafff975499ecd79bb7d
 
 COCOAPODS: 1.5.2

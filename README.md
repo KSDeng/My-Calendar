@@ -1,4 +1,6 @@
 ## My Calendar
 
-![](https://github.com/KSDeng/My-Calendar/blob/master/pic/My-Calendar-20191201-show.gif?raw=true)
+未完待续
+
+已完成部分见pic文件夹
 

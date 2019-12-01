@@ -15,8 +15,8 @@ import DateTimePicker
 
 
 protocol EventProcessDelegate {
-    func addEvent(e: EventPersist)
-    func editEvent(e: EventPersist, index: Int, eventId: NSManagedObjectID)
+    func addEvent(e: Task)
+    func editEvent(e: Task, index: Int, eventId: NSManagedObjectID)
     func deleteEvent(index: Int, eventId: NSManagedObjectID)
 }
 
@@ -45,7 +45,7 @@ class EventProcessController: UITableViewController {
     // 当前事件
     // var currentEvent = Event()
     //var currentEvent = EventPersist(context: Utils.context)
-    var currentEvent: EventPersist?
+    var currentEvent: Task?
     // 当前事件在事件数组中的下标(用于编辑和删除)
     var currentEventIndex = 0
     // 发布任务的代理
@@ -197,7 +197,7 @@ class EventProcessController: UITableViewController {
     // 添加事件完成
     // TODO: input check, alert
     @IBAction func saveEventAction(_ sender: Any) {
-        currentEvent = EventPersist(context: Utils.context)
+        currentEvent = Task(context: Utils.context)
         currentEvent?.startTime = tmpStartTime
         currentEvent?.endTime = tmpEndTime
         

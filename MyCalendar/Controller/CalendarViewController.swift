@@ -50,9 +50,12 @@ class CalendarViewController: UITableViewController {
     // 每一行的高度，避免遍历整个events数组
     var heights: [String: CGFloat] = [:]
     
-    var eventCount: [String: Int] = [:]
+    var taskCount: [String: Int] = [:]
     // 事件数组，通过Delegate添加、编辑，并用CoreData进行本地化
-    var events: [EventPersist] = []
+    var tasks: [Task] = []
+    
+    // 特殊日期，通过网络请求动态获取，不进行本地化
+    var specialDays: [String:[SpecialDay]] = [:]
     
     var dateToday = ""
     
@@ -101,11 +104,11 @@ class CalendarViewController: UITableViewController {
         
         if ifFirstTime{
             loadData()
-            for e in events {
-                if eventCount.keys.contains(e.dateIndex!){
-                    eventCount[e.dateIndex!]! += 1
+            for e in tasks {
+                if taskCount.keys.contains(e.dateIndex!){
+                    taskCount[e.dateIndex!]! += 1
                 }else{
-                    eventCount[e.dateIndex!] = 1
+                    taskCount[e.dateIndex!] = 1
                 }
             }
             ifFirstTime = false
@@ -188,36 +191,43 @@ class CalendarViewController: UITableViewController {
                 let holidays = data["holiday"]
                 // traverse the holidays
                 for (_, holiday):(String, JSON) in holidays{
+                    
                     let targetDate = holiday["date"].stringValue
                     let name = holiday["name"].stringValue
                     let ifHoliday = holiday["holiday"].boolValue
-                    //print("Name:\(name), date: \(targetDate)")
                     
-                    let hEvent = EventPersist(context: Utils.context)
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
-                    hEvent.startTime = formatter.date(from: "\(targetDate)-00-00-00")
-                    hEvent.dateIndex = targetDate
-                    hEvent.type = ifHoliday ? EventType.Holiday.rawValue : EventType.Adjust.rawValue
-                    hEvent.title = name
-                    //print("I'm here.")
-                    self.doAddEvent(e: hEvent)
+                    
+                    let specialDay = ifHoliday ? Holiday() : Adjust()
+                    specialDay.title = name
+                    // print("Date: \(targetDate), \(name)")
+                    if self.specialDays.keys.contains(targetDate){
+                        self.specialDays[targetDate]!.append(specialDay)
+                    }else{
+                        self.specialDays[targetDate] = [specialDay]
+                    }
+                    
+                    if self.taskCount.keys.contains(targetDate){
+                        self.taskCount[targetDate]! += 1
+                    }else{
+                        self.taskCount[targetDate] = 1
+                    }
+                    self.tableView.reloadData()
                     
                 }
             }
         })
     }
     
-    private func doAddEvent(e: EventPersist){
-        events.append(e)
+    private func doAddEvent(e: Task){
+        tasks.append(e)
         //print(e)
-        if eventCount.keys.contains(e.dateIndex!){
-            eventCount[e.dateIndex!]! += 1
+        if taskCount.keys.contains(e.dateIndex!){
+            taskCount[e.dateIndex!]! += 1
         }else{
-            eventCount[e.dateIndex!] = 1
+            taskCount[e.dateIndex!] = 1
         }
         if EventType(rawValue: e.type!)! == .Task{
-            events.sort(by: {$0.startTime! < $1.startTime!})
+            tasks.sort(by: {$0.startTime! < $1.startTime!})
         }
         
         tableView.reloadData()
@@ -226,11 +236,11 @@ class CalendarViewController: UITableViewController {
 
     
     private func doDeleteEvent(eventIndex: Int, eventId: NSManagedObjectID){
-        let dateIndex = events[eventIndex].dateIndex!
+        let dateIndex = tasks[eventIndex].dateIndex!
         //heights[dateIndex]! -= (evHeight + 2)
-        eventCount[dateIndex]! -= 1
+        taskCount[dateIndex]! -= 1
         
-        let dEvent = events.remove(at: eventIndex)
+        let dEvent = tasks.remove(at: eventIndex)
         Utils.context.delete(dEvent)
         
         tableView.reloadData()
@@ -249,29 +259,29 @@ class CalendarViewController: UITableViewController {
     // 从CoreData中加载数据
     private func loadData(){
         do {
-            try events = Utils.context.fetch(EventPersist.fetchRequest())
+            try tasks = Utils.context.fetch(Task.fetchRequest())
         } catch {
             print(error)
         }
         
-        events.sort(by: {$0.startTime! < $1.startTime!})
+        tasks.sort(by: {$0.startTime! < $1.startTime!})
         tableView.reloadData()
     }
     
     private func showEvents(){
         print("Events:")
-        for e in events {
+        for e in tasks {
             print(e)
         }
     }
     private func refreshHeights(){
         print("Function refreshHeights")
-        for e in events{
+        for e in tasks{
             print(e.dateIndex!)
-            if eventCount.keys.contains(e.dateIndex!){
-                eventCount[e.dateIndex!]! += 1
+            if taskCount.keys.contains(e.dateIndex!){
+                taskCount[e.dateIndex!]! += 1
             }else{
-                eventCount[e.dateIndex!] = 1
+                taskCount[e.dateIndex!] = 1
             }
         }
         tableView.reloadData()
@@ -293,8 +303,8 @@ class CalendarViewController: UITableViewController {
         //heights[dateKey] = rowHeight
         
         // 未设置事件数量时才设为0，否则会把之前的覆盖掉！
-        if !eventCount.keys.contains(dateKey){
-            eventCount[dateKey] = 0
+        if !taskCount.keys.contains(dateKey){
+            taskCount[dateKey] = 0
         }
         
         // days.sort(by: {$0.0 < $1.0})
@@ -337,9 +347,40 @@ class CalendarViewController: UITableViewController {
         
         var eventCount = 0
         
-        // 显示该天对应的事件
+        if let sds = specialDays[day.0]{
+            for (index, sd) in sds.enumerated() {
+                //print("Special day: \(sd.title)")
+                let evWidth = cell.bounds.width - 32
+                let evX = cell.bounds.minX + 16
+                
+                var evY = cell.bounds.minY + rowHeight + 2
+                evY += (CGFloat(index) * (evHeight + 2))
+                
+                let sdView = UIView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                if let _ = sd as? Holiday {
+                    sdView.backgroundColor = Utils.holidayColor
+                }else{
+                    sdView.backgroundColor = Utils.adjustDayColor
+                }
+                
+                let titleLabel = UILabel(frame: CGRect(x: sdView.bounds.minX + 16, y: sdView.bounds.minY + 7, width: 200, height: sdView.bounds.height * 0.6))
+                titleLabel.text = sd.title
+                titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+                titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
+                
+                titleLabel.baselineAdjustment = .alignCenters
+                sdView.addSubview(titleLabel)
+                
+                cell.addSubview(sdView)
+                
+                eventCount += 1
+            }
+        }
+        
+        
+        // 显示该天对应的任务
         // 添加的事件其实也会被重用(duplicated)，看不到是因为高度的原因被隐藏了
-        for event in events{
+        for event in tasks{
             if event.dateIndex! == day.0 {
                 
                 let evWidth = cell.bounds.width - 32
@@ -348,25 +389,25 @@ class CalendarViewController: UITableViewController {
                 evY += (CGFloat(eventCount) * (evHeight + 2))
                 eventCount += 1
                 
-                let eventView = UIEventView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                let taskView = UIEventView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
                 
-                eventView.dateIndex = day.0
-                eventView.eventIndex = events.firstIndex(of: event)!
-                eventView.event = event
+                taskView.dateIndex = day.0
+                taskView.eventIndex = tasks.firstIndex(of: event)!
+                taskView.event = event
                 // 根据事件类型设置不同的颜色
                 switch EventType(rawValue: event.type!) {
                 case .Task:
-                    eventView.backgroundColor = Utils.eventColorArray[Int(event.colorPoint)]
+                    taskView.backgroundColor = Utils.eventColorArray[Int(event.colorPoint)]
                 case .Holiday:
-                    eventView.backgroundColor = Utils.holidayColor
+                    taskView.backgroundColor = Utils.holidayColor
                 case .Adjust:
                     //print("Adjust!")
-                    eventView.backgroundColor = Utils.adjustDayColor
+                    taskView.backgroundColor = Utils.adjustDayColor
                 default:
                     print("Event type error while redering!")
                 }
                 
-                let titleLabel = UILabel(frame: CGRect(x: eventView.bounds.minX + 16, y: eventView.bounds.minY + 7, width: 200, height: eventView.bounds.height * 0.6))
+                let titleLabel = UILabel(frame: CGRect(x: taskView.bounds.minX + 16, y: taskView.bounds.minY + 7, width: 200, height: taskView.bounds.height * 0.6))
                 titleLabel.text = event.title
                 titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
                 titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
@@ -374,10 +415,10 @@ class CalendarViewController: UITableViewController {
                 // 避免字体自适应后的位置偏移
                 // https://stackoverflow.com/questions/26649909/text-not-vertically-centered-in-uilabel
                 titleLabel.baselineAdjustment = .alignCenters
-                eventView.addSubview(titleLabel)
+                taskView.addSubview(titleLabel)
                 
                 if EventType(rawValue: event.type!) == .Task {
-                    let timeLabel = UILabel(frame: CGRect(x: eventView.bounds.maxX - 120, y: eventView.bounds.minY + 7, width: 150, height: eventView.bounds.height * 0.6))
+                    let timeLabel = UILabel(frame: CGRect(x: taskView.bounds.maxX - 120, y: taskView.bounds.minY + 7, width: 150, height: taskView.bounds.height * 0.6))
                     
                     let startTime = getDateAsFormat(date: event.startTime!, format: "HH:mm")
                     let endTime = getDateAsFormat(date: event.endTime!, format: "HH:mm")
@@ -386,20 +427,21 @@ class CalendarViewController: UITableViewController {
                     timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
                     
                     // 任务添加点击事件
-                    let gesture = UITapGestureRecognizer(target: self, action: #selector(eventViewTapped))
-                    eventView.addGestureRecognizer(gesture)
+                    let gesture = UITapGestureRecognizer(target: self, action: #selector(taskViewTapped))
+                    taskView.addGestureRecognizer(gesture)
                     
-                    eventView.addSubview(timeLabel)
+                    taskView.addSubview(timeLabel)
                 }
-                cell.addSubview(eventView)
+                cell.addSubview(taskView)
             }
         }
         
         return cell
     }
     
+    
     // 点击事件视图
-    @objc func eventViewTapped(sender: UITapGestureRecognizer){
+    @objc func taskViewTapped(sender: UITapGestureRecognizer){
         // print("Event view tapped!")
         let getView = sender.view as! UIEventView
         // 从storyboard加载View Controller
@@ -421,7 +463,7 @@ class CalendarViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         // 使用map才能做到即时渲染
-        return rowHeight + CGFloat(eventCount[days[indexPath.row].0]!) * (evHeight + 2)
+        return rowHeight + CGFloat(taskCount[days[indexPath.row].0]!) * (evHeight + 2)
         //return heights[days[indexPath.row].0]!
         // 以下方法会造成较大的延迟
         /*
@@ -520,7 +562,7 @@ class CalendarViewController: UITableViewController {
             dest.enterType = .Add
             // 在context中创建新事件
             // 此时创建为时过早，因为还有可能取消添加
-            // dest.currentEvent = EventPersist(context: Utils.context)
+            // dest.currentEvent = Task(context: Utils.context)
         }
     }
     
@@ -543,9 +585,9 @@ class CalendarViewController: UITableViewController {
 }
 
 extension CalendarViewController: EventProcessDelegate {
-    func editEvent(e: EventPersist, index: Int, eventId: NSManagedObjectID) {
-        events[index] = e
-        events.sort(by: {$0.startTime! < $1.startTime!})
+    func editEvent(e: Task, index: Int, eventId: NSManagedObjectID) {
+        tasks[index] = e
+        tasks.sort(by: {$0.startTime! < $1.startTime!})
         tableView.reloadData()
     }
     
@@ -555,7 +597,7 @@ extension CalendarViewController: EventProcessDelegate {
     }
     
     
-    func addEvent(e: EventPersist){
+    func addEvent(e: Task){
         doAddEvent(e: e)
         tableView.reloadData()
     }

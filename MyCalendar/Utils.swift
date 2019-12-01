@@ -31,4 +31,11 @@ class Utils {
     
     // 事件卡片颜色指针
     public static var currentColorPoint = 0
+    
+
+    // CoreData上下文
+    public static let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 }
+
+
+

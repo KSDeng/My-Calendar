@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="18G87" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="Event" representedClassName="Event" syncable="YES" codeGenerationType="class">
-        <attribute name="color" optional="YES" attributeType="String"/>
-        <attribute name="endTime" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="invitations" optional="YES" attributeType="String"/>
-        <attribute name="location" attributeType="String"/>
+    <entity name="EventPersist" representedClassName="EventPersist" syncable="YES" codeGenerationType="class">
+        <attribute name="arrayIndex" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="colorPoint" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="dateIndex" optional="YES" attributeType="String"/>
+        <attribute name="endTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="note" optional="YES" attributeType="String"/>
-        <attribute name="startTime" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="title" attributeType="String"/>
-        <attribute name="type" optional="YES" attributeType="Transformable"/>
+        <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="timeStamp" optional="YES" attributeType="String"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Event" positionX="-45" positionY="0" width="128" height="163"/>
+        <element name="EventPersist" positionX="-63" positionY="-18" width="128" height="193"/>
     </elements>
 </model>

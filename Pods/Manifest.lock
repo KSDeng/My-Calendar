@@ -2,18 +2,12 @@ PODS:
   - Alamofire (4.9.1)
   - DateTimePicker (2.2.0)
   - MJRefresh (3.2.0)
-  - Realm (3.21.0):
-    - Realm/Headers (= 3.21.0)
-  - Realm/Headers (3.21.0)
-  - RealmSwift (3.21.0):
-    - Realm (= 3.21.0)
   - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - Alamofire
   - DateTimePicker
   - MJRefresh
-  - RealmSwift
   - SwiftyJSON
 
 SPEC REPOS:
@@ -21,18 +15,14 @@ SPEC REPOS:
     - Alamofire
     - DateTimePicker
     - MJRefresh
-    - Realm
-    - RealmSwift
     - SwiftyJSON
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   DateTimePicker: f65c0ae594e85dcf39d2aaf6a8ce06dee7d15aa7
   MJRefresh: ed450d6eb9d3346a2cb033ab7eb6de090aeef437
-  Realm: 38e9dcb19104b58407167d99f70d4995f7c16023
-  RealmSwift: 3183cc1ad48378fbcd634311b22c0e6c44021152
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: ebdf71409b04663fac60eafff975499ecd79bb7d
+PODFILE CHECKSUM: ea065e12ea4ba1bc9394eeb27c2cc355529eccc0
 
 COCOAPODS: 1.5.2

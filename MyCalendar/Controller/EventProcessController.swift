@@ -10,12 +10,14 @@
 // 1. https://github.com/itsmeichigo/DateTimePicker
 
 import UIKit
+import CoreData
 import DateTimePicker
 
+
 protocol EventProcessDelegate {
-    func addEvent(e: Event)
-    func editEvent(e: Event, dateIndex: String, eventIndex: Int)
-    func deleteEvent(dateIndex: String, eventIndex: Int)
+    func addEvent(e: EventPersist)
+    func editEvent(e: EventPersist, index: Int, eventId: NSManagedObjectID)
+    func deleteEvent(index: Int, eventId: NSManagedObjectID)
 }
 
 enum Status {
@@ -37,23 +39,23 @@ class EventProcessController: UITableViewController {
     @IBOutlet weak var noteTextField: UITextField!
     
     
-    
     // 每个section的行数
     let numberOfRows = [1,2,1,1,1]
     
     // 当前事件
-    var currentEvent = Event()
+    // var currentEvent = Event()
+    //var currentEvent = EventPersist(context: Utils.context)
+    var currentEvent: EventPersist?
+    // 当前事件在事件数组中的下标(用于编辑和删除)
+    var currentEventIndex = 0
     // 发布任务的代理
     var delegate: EventProcessDelegate?
-    
-    // 索引，用于编辑事件
-    var dateIndex: String?
-    var eventIndex: Int?
     
     // 进入当前视图的方式(增加和编辑)
     var enterType = Status.Default
     
-    
+    var tmpStartTime = Date()
+    var tmpEndTime = Date()
     // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
     // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
     override func viewWillAppear(_ animated: Bool) {
@@ -61,12 +63,12 @@ class EventProcessController: UITableViewController {
         // 编辑动作进入之前记得设置currentEvent
         if enterType == .Edit {
             //print("Enter type: edit")
-            titleTextField.text = currentEvent.title
-            startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.startTime, format: "HH:mm")
-            endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.endTime, format: "HH:mm")
-            locationLabel.text = currentEvent.location
+            titleTextField.text = currentEvent!.title
+            startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.startTime!, format: "HH:mm")
+            endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.endTime!, format: "HH:mm")
+            locationLabel.text = currentEvent!.location
             invitationLabel.text = ""
-            noteTextField.text = currentEvent.note ?? ""
+            noteTextField.text = currentEvent!.note ?? ""
         } else if enterType == .Show {
             navigationItem.title = "事务详情"
             
@@ -77,12 +79,12 @@ class EventProcessController: UITableViewController {
             invitationLabel.isUserInteractionEnabled = false
             noteTextField.isUserInteractionEnabled = false
             
-            titleTextField.text = currentEvent.title
-            startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.startTime, format: "HH:mm")
-            endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent.endTime, format: "HH:mm")
-            locationLabel.text = currentEvent.location
+            titleTextField.text = currentEvent!.title
+            startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.startTime!, format: "HH:mm")
+            endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.endTime!, format: "HH:mm")
+            locationLabel.text = currentEvent!.location
             invitationLabel.text = ""
-            noteTextField.text = currentEvent.note ?? ""
+            noteTextField.text = currentEvent!.note ?? ""
             
             //navigationItem.rightBarButtonItem?.title = "删除"
             //navigationItem.rightBarButtonItem?.tintColor = UIColor.red
@@ -141,7 +143,8 @@ class EventProcessController: UITableViewController {
             print("Start time cell clicked.")
             self.view.endEditing(true)
             showDateTimePicker(completionHandler: { date in
-                self.currentEvent.startTime = date       // 开始时间
+                // self.currentEvent!.startTime = date       // 开始时间
+                self.tmpStartTime = date
                 
                 let formatter = DateFormatter()
                 formatter.timeZone = .autoupdatingCurrent
@@ -153,7 +156,8 @@ class EventProcessController: UITableViewController {
             print("End time cell clicked.")
             self.view.endEditing(true)
             showDateTimePicker(completionHandler: {date in
-                self.currentEvent.endTime = date        // 结束时间
+                // self.currentEvent!.endTime = date        // 结束时间
+                self.tmpEndTime = date
                 
                 let formatter = DateFormatter()
                 formatter.timeZone = .autoupdatingCurrent
@@ -190,24 +194,44 @@ class EventProcessController: UITableViewController {
         self.view.endEditing(true)
     }
     
-    // 保存事件
+    // 添加事件完成
     // TODO: input check, alert
     @IBAction func saveEventAction(_ sender: Any) {
-        currentEvent.type = .Task
-        currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-        currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
-        currentEvent.invitations = nil          // TODO
-        currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
-        currentEvent.colorPoint = Utils.currentColorPoint
-        Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
-        // print("ColorPoint: \(colorPoint)")
-        delegate?.addEvent(e: currentEvent)
+        currentEvent = EventPersist(context: Utils.context)
+        currentEvent?.startTime = tmpStartTime
+        currentEvent?.endTime = tmpEndTime
+        
+        if let currentEvent = currentEvent {
+            if currentEvent.startTime == nil{
+                currentEvent.startTime = Date()
+            }
+            if currentEvent.endTime == nil{
+                currentEvent.endTime = Date()
+            }
+            currentEvent.timeStamp = Utils.getDateAsFormat(date: Date(), format: "yyyyMMddHHmmss")
+            currentEvent.dateIndex = Utils.getDateAsFormat(date: currentEvent.startTime!, format: "yyyy-MM-dd")
+            
+            currentEvent.arrayIndex = Int32(currentEventIndex)              // 数组下标
+            currentEvent.type = EventType.Task.rawValue
+            currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+            currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
+            // currentEvent.invitations = nil          // TODO
+            currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+            currentEvent.colorPoint = Int16(Utils.currentColorPoint)
+            Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
+            
+            // print("ColorPoint: \(colorPoint)")
+            delegate?.addEvent(e: currentEvent)
+        }else{
+            print("No event to add error.")
+        }
+        
         navigationController?.popViewController(animated: true)
         
     }
     
     @objc func deleteButtonClicked(){
-        delegate?.deleteEvent(dateIndex: dateIndex!, eventIndex: eventIndex!)
+        delegate?.deleteEvent(index: currentEventIndex, eventId: currentEvent!.objectID)
         navigationController?.popViewController(animated: true)
     }
     @objc func editButtonClicked(){
@@ -226,11 +250,16 @@ class EventProcessController: UITableViewController {
     }
     
     @objc func confirmEditButtonClicked(){
-        currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-        currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
-        currentEvent.invitations = nil          // TODO
-        currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
-        delegate?.editEvent(e: currentEvent, dateIndex: dateIndex!, eventIndex: eventIndex!)
+        if let currentEvent = currentEvent {
+            currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+            currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
+            // currentEvent.invitations = nil          // TODO
+            currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+            delegate?.editEvent(e: currentEvent, index: currentEventIndex, eventId: currentEvent.objectID)
+        }else {
+            print("No event to edit error.")
+        }
+        
         navigationController?.popViewController(animated: true)
     }
     

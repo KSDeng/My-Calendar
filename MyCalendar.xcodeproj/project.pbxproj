@@ -14,9 +14,9 @@
 		0A419C032378EF9400CB415D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C012378EF9400CB415D /* Main.storyboard */; };
 		0A419C052378EF9500CB415D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C042378EF9500CB415D /* Assets.xcassets */; };
 		0A419C082378EF9500CB415D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C062378EF9500CB415D /* LaunchScreen.storyboard */; };
+		0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0A7684CF2392B31F00DEC735 /* Calendar_data.xcdatamodeld */; };
 		0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* CalendarViewController.swift */; };
 		0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* EventProcessController.swift */; };
-		0A9077CC238BA22900FFF1EE /* Event.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CB238BA22900FFF1EE /* Event.swift */; };
 		0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CD238BA89300FFF1EE /* CalendarCell.swift */; };
 		D60C1CFC7375AF0B6ABE49BC /* Pods_MyCalendar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */; };
 /* End PBXBuildFile section */
@@ -31,9 +31,9 @@
 		0A419C042378EF9500CB415D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A419C072378EF9500CB415D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0A419C092378EF9500CB415D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A7684D02392B31F00DEC735 /* Calendar_data.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Calendar_data.xcdatamodel; sourceTree = "<group>"; };
 		0A86C927238B814B007F3576 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
 		0A86C92B238B828F007F3576 /* EventProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProcessController.swift; sourceTree = "<group>"; };
-		0A9077CB238BA22900FFF1EE /* Event.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		0A9077CD238BA89300FFF1EE /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
 		1C99BA198377152DFFB0B724 /* Pods_MyCalendar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyCalendar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31B5D092E0F76BB696B6D070 /* Pods-MyCalendar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyCalendar.debug.xcconfig"; path = "Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar.debug.xcconfig"; sourceTree = "<group>"; };
@@ -82,6 +82,7 @@
 				0A419C062378EF9500CB415D /* LaunchScreen.storyboard */,
 				0A419C092378EF9500CB415D /* Info.plist */,
 				0A09C3362392507600871FD6 /* Utils.swift */,
+				0A7684CF2392B31F00DEC735 /* Calendar_data.xcdatamodeld */,
 			);
 			path = MyCalendar;
 			sourceTree = "<group>";
@@ -98,7 +99,6 @@
 		0A9077CA238BA1F000FFF1EE /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0A9077CB238BA22900FFF1EE /* Event.swift */,
 				0A9077CD238BA89300FFF1EE /* CalendarCell.swift */,
 				0A16E4642390DFE1003685C1 /* UIEventView.swift */,
 			);
@@ -219,8 +219,6 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/DateTimePicker/DateTimePicker.framework",
 				"${BUILT_PRODUCTS_DIR}/MJRefresh/MJRefresh.framework",
-				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
-				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -228,8 +226,6 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DateTimePicker.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJRefresh.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -245,12 +241,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */,
+				0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */,
 				0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */,
 				0A09C3372392507600871FD6 /* Utils.swift in Sources */,
 				0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */,
 				0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */,
 				0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */,
-				0A9077CC238BA22900FFF1EE /* Event.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -451,6 +447,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		0A7684CF2392B31F00DEC735 /* Calendar_data.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				0A7684D02392B31F00DEC735 /* Calendar_data.xcdatamodel */,
+			);
+			currentVersion = 0A7684D02392B31F00DEC735 /* Calendar_data.xcdatamodel */;
+			path = Calendar_data.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 0A419BF02378EF9400CB415D /* Project object */;
 }

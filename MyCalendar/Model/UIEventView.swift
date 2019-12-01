@@ -13,7 +13,8 @@ class UIEventView: UIView {
 
     var dateIndex: String?
     var eventIndex: Int?
-    var event: Event?
+    // var event: Event?
+    var event: EventPersist?
     
     /*
     // Only override draw() if you perform custom drawing.

@@ -12,6 +12,5 @@ target 'MyCalendar' do
   pod 'DateTimePicker'
   pod 'MJRefresh'
   pod 'SwiftyJSON'
-  pod 'RealmSwift'
 
 end

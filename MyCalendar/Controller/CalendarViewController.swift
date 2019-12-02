@@ -449,6 +449,7 @@ class CalendarViewController: UITableViewController {
         let detailController: EventProcessController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! EventProcessController
         // 传递数据
         detailController.currentEvent = getView.event!
+        print("Current event loc title:\(detailController.currentEvent!.locTitle)")
         detailController.currentEventIndex = getView.eventIndex!
         // print("Get view event id: \(getView.event!.id)")
         detailController.enterType = .Show          // 仅展示

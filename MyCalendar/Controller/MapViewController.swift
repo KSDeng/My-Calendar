@@ -21,6 +21,11 @@ import CoreLocation
 
 protocol SetLocationHandle {
     func setLocation(location: MKPlacemark)
+    func editLocationDone(location: MKPlacemark)
+}
+
+enum State: String{
+    case add, show, edit, normal
 }
 
 class MapViewController: UIViewController {
@@ -42,30 +47,77 @@ class MapViewController: UIViewController {
     
     var delegate:SetLocationHandle?
     
+    // Map当前状态
+    var state = State.normal
+    
+    // 展示状态设置变量
+    var showTitle: String?
+    var showLongitude: Double?
+    var showLatitude: Double?
+    
     // 加载搜索结果的展示页面
     let locationResultTable = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "LocationSearchResultView") as! LocationSearchResultViewController
     
     override func viewWillAppear(_ animated: Bool) {
         mapView.delegate = self
         
-        // 设置并请求当前位置
+        if state == .add {
+            // 设置并请求当前位置
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.requestWhenInUseAuthorization()     // 请求运行时的位置信息使用权
+            locationResultTable.delegate = self
+            locationResultTable.searchCenter = userLoction
+        } else if state == .edit {
+            // print("My state is edit")
+            locationManager.delegate = self
+            locationResultTable.delegate = self
+            if let long = showLongitude, let lat = showLatitude {
+                locationResultTable.searchCenter = CLLocationCoordinate2D(latitude: lat, longitude: long)
+            }
+            
+        }
         
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.requestWhenInUseAuthorization()     // 请求运行时的位置信息使用权
-        
-        locationResultTable.delegate = self
-        locationResultTable.userLoction = userLoction
     }
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        setupSearchBar()
+        if state == .add {
+            setupSearchBar()
+            
+            setupConfirmButton()
+            
+            navigationItem.title = "选择地点"
+        } else if state == .show {
+            
+            if let title = showTitle, let long = showLongitude, let lat = showLatitude {
+                navigationItem.title = title
+                
+                let eventPlace = CLLocationCoordinate2D(latitude: lat, longitude: long)
+                let annotation = MKPointAnnotation()
+                annotation.title = title
+                annotation.coordinate = eventPlace
+                mapView.addAnnotation(annotation)
+                centerMapOnLocation(location: eventPlace, latSpan: 0.1, longSpan: 0.1)
+                
+            }
+        } else if state == .edit {
+            setupSearchBar()
+            setupConfirmButton()
+            if let title = showTitle, let long = showLongitude, let lat = showLatitude {
+                navigationItem.title = "当前地点:\(title)"
+                
+                let eventPlace = CLLocationCoordinate2D(latitude: lat, longitude: long)
+                let annotation = MKPointAnnotation()
+                annotation.title = title
+                annotation.coordinate = eventPlace
+                mapView.addAnnotation(annotation)
+                centerMapOnLocation(location: eventPlace, latSpan: 0.1, longSpan: 0.1)
+                
+            }
+        }
         
-        setupConfirmButton()
-        
-        navigationItem.title = "选择地点"
     }
     
     private func setupConfirmButton(){
@@ -75,7 +127,11 @@ class MapViewController: UIViewController {
     
     @objc func confirmButtonClicked(){
         if let loc = locationSelected {
-            delegate?.setLocation(location: loc)
+            if state == .add {
+                delegate?.setLocation(location: loc)
+            } else if state == .edit {
+                delegate?.editLocationDone(location: loc)
+            }
         }else{
             print("No location selected error!")
         }
@@ -126,7 +182,7 @@ class MapViewController: UIViewController {
 extension MapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         // 获得允许之后请求当前位置
-        if status == .authorizedWhenInUse {
+        if status == .authorizedWhenInUse && state == .add {
             locationManager.requestLocation()
         }
     }

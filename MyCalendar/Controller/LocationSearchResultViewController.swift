@@ -15,10 +15,11 @@ protocol HandleLocationSelect {
 
 class LocationSearchResultViewController: UITableViewController {
 
-    
+    // 搜索结果
     var matchingItems: [MKMapItem] = []
+    // 搜索中心位置
+    var searchCenter: CLLocationCoordinate2D?
     
-    var userLoction: CLLocationCoordinate2D?
     var delegate: HandleLocationSelect?
     
     override func viewDidLoad() {
@@ -111,6 +112,7 @@ class LocationSearchResultViewController: UITableViewController {
 
 extension LocationSearchResultViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
+        // matchingItems.removeAll()
         guard let searchBarText = searchController.searchBar.text else {
             return
         }
@@ -118,7 +120,7 @@ extension LocationSearchResultViewController: UISearchResultsUpdating {
         request.naturalLanguageQuery = searchBarText
         // request.region = mapView.region
         let span = MKCoordinateSpan(latitudeDelta: 180, longitudeDelta: 360)        // 全球范围搜索
-        if let userLocation = userLoction {
+        if let userLocation = searchCenter {
             request.region = MKCoordinateRegion(center: userLocation, span: span)
         }
         let search = MKLocalSearch(request: request)

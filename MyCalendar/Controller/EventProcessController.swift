@@ -44,6 +44,8 @@ class EventProcessController: UITableViewController {
     
     // 每个section的行数
     let numberOfRows = [1,2,1,1,1]
+    // 展示的时候地点cell是可以互动的
+    let showInteract = [false, false, false, true, false, false]
     
     // 当前事件
     // var currentEvent = Event()
@@ -59,6 +61,10 @@ class EventProcessController: UITableViewController {
     
     var tmpStartTime = Date()
     var tmpEndTime = Date()
+    
+    // 添加地点时缓存
+    var tmpLocation: MKPlacemark?
+    
     // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
     // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
     override func viewWillAppear(_ animated: Bool) {
@@ -69,7 +75,7 @@ class EventProcessController: UITableViewController {
             titleTextField.text = currentEvent!.title
             startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.startTime!, format: "HH:mm")
             endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.endTime!, format: "HH:mm")
-            locationLabel.text = currentEvent!.location
+            // locationLabel.text = currentEvent!.location
             invitationLabel.text = ""
             noteTextField.text = currentEvent!.note ?? ""
         } else if enterType == .Show {
@@ -78,14 +84,15 @@ class EventProcessController: UITableViewController {
             titleTextField.isUserInteractionEnabled = false
             startTimeLabel.isUserInteractionEnabled = false
             endTimeLabel.isUserInteractionEnabled = false
-            locationLabel.isUserInteractionEnabled = false
+            //locationLabel.isUserInteractionEnabled = false
             invitationLabel.isUserInteractionEnabled = false
             noteTextField.isUserInteractionEnabled = false
             
             titleTextField.text = currentEvent!.title
             startTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.startTime!, format: "HH:mm")
             endTimeLabel.text = Utils.getDateAsFormat(date: currentEvent!.endTime!, format: "HH:mm")
-            locationLabel.text = currentEvent!.location
+            locationLabel.text = currentEvent!.locTitle
+            locationLabel.textColor = UIColor.black
             invitationLabel.text = ""
             noteTextField.text = currentEvent!.note ?? ""
             
@@ -134,7 +141,10 @@ class EventProcessController: UITableViewController {
         // 若是展示事务内容则将cell设置为不可选择
         // https://stackoverflow.com/questions/812426/uitableview-setting-some-cells-as-unselectable
         if enterType == .Show {
-            return nil
+            
+            // 此时地点cell可以交互
+            return indexPath.section == 2 ? indexPath : nil
+            
         }
         return indexPath
     }
@@ -218,7 +228,16 @@ class EventProcessController: UITableViewController {
             currentEvent.arrayIndex = Int32(currentEventIndex)              // 数组下标
             currentEvent.type = EventType.Task.rawValue
             currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-            currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
+            
+            // 设置位置信息
+            if let location = tmpLocation {
+                currentEvent.locTitle = location.name
+                currentEvent.locAddrDetail = location.title
+                currentEvent.locLongitude = location.coordinate.longitude
+                currentEvent.locLatitude = location.coordinate.latitude
+            }
+            
+            // currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
             // currentEvent.invitations = nil          // TODO
             currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
             currentEvent.colorPoint = Int16(Utils.currentColorPoint)
@@ -256,7 +275,13 @@ class EventProcessController: UITableViewController {
     @objc func confirmEditButtonClicked(){
         if let currentEvent = currentEvent {
             currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-            currentEvent.location = locationLabel.text!.isEmpty ? "(未添加地点)" : locationLabel.text!
+            // 设置位置信息
+            if let location = tmpLocation {
+                currentEvent.locTitle = location.name
+                currentEvent.locAddrDetail = location.title
+                currentEvent.locLongitude = location.coordinate.longitude
+                currentEvent.locLatitude = location.coordinate.latitude
+            }
             // currentEvent.invitations = nil          // TODO
             currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
             delegate?.editEvent(e: currentEvent, index: currentEventIndex, eventId: currentEvent.objectID)
@@ -323,7 +348,25 @@ class EventProcessController: UITableViewController {
         // 添加地点
         if segue.identifier == "showMap"{
             let dest = (segue.destination) as! MapViewController
+            
+            // 进入时设置Map状态
+            if enterType == .Add {
+                dest.state = .add
+            } else if enterType == .Show {
+                dest.state = .show
+                
+                dest.showTitle = self.currentEvent?.locTitle
+                dest.showLongitude = self.currentEvent?.locLongitude
+                dest.showLatitude = self.currentEvent?.locLatitude
+            } else if enterType == .Edit {
+                dest.state = .edit
+                
+                dest.showTitle = self.currentEvent?.locTitle
+                dest.showLongitude = self.currentEvent?.locLongitude
+                dest.showLatitude = self.currentEvent?.locLatitude
+            }
             dest.delegate = self
+            
         }
     }
     
@@ -356,9 +399,16 @@ extension EventProcessController: DateTimePickerDelegate {
 }
 
 extension EventProcessController: SetLocationHandle {
+
     func setLocation(location: MKPlacemark) {
+        tmpLocation = location
         self.locationLabel.text = location.name
+        self.locationLabel.textColor = UIColor.black
     }
-    
+    func editLocationDone(location: MKPlacemark) {
+        tmpLocation = location
+        self.locationLabel.text = location.name
+        self.locationLabel.textColor = UIColor.black
+    }
     
 }

@@ -3,6 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -130,6 +131,9 @@
                                                 <constraint firstAttribute="bottom" secondItem="a1H-FR-pqR" secondAttribute="bottom" constant="8" id="tkv-9K-6Oo"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="aDl-LW-tST" kind="show" identifier="showMap" id="ypk-5S-KzH"/>
+                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -202,6 +206,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="添加事务" id="USs-66-JcR">
+                        <barButtonItem key="backBarButtonItem" title="返回" id="Bza-vW-SgA"/>
                         <barButtonItem key="rightBarButtonItem" title="保存" id="RGR-Fv-l3w">
                             <connections>
                                 <action selector="saveEventAction:" destination="o60-Of-01u" id="VDW-Pu-IgP"/>
@@ -220,6 +225,80 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6d0-au-0fE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3199" y="583"/>
+        </scene>
+        <!--Map View Controller-->
+        <scene sceneID="PHE-Mq-kGH">
+            <objects>
+                <viewController id="aDl-LW-tST" customClass="MapViewController" customModule="MyCalendar" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="k7M-Rw-QcZ">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" rotateEnabled="NO" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dFT-9u-Dkc">
+                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
+                            </mapView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="dFT-9u-Dkc" firstAttribute="trailing" secondItem="OFZ-R4-DaE" secondAttribute="trailing" id="3I4-Wk-se1"/>
+                            <constraint firstItem="dFT-9u-Dkc" firstAttribute="leading" secondItem="OFZ-R4-DaE" secondAttribute="leading" id="JI0-eD-pIB"/>
+                            <constraint firstAttribute="bottom" secondItem="dFT-9u-Dkc" secondAttribute="bottom" id="Jjd-TY-KRe"/>
+                            <constraint firstItem="dFT-9u-Dkc" firstAttribute="top" secondItem="k7M-Rw-QcZ" secondAttribute="top" constant="88" id="LsT-NI-BfP"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="OFZ-R4-DaE"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="thv-Ml-Yw4"/>
+                    <connections>
+                        <outlet property="mapView" destination="dFT-9u-Dkc" id="sux-QO-1p5"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="jCl-WS-fX3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4042.0289855072465" y="582.58928571428567"/>
+        </scene>
+        <!--Location Search Result View Controller-->
+        <scene sceneID="XNP-XG-d6j">
+            <objects>
+                <tableViewController storyboardIdentifier="LocationSearchResultView" id="MGg-AV-GDX" customClass="LocationSearchResultViewController" customModule="MyCalendar" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="ihM-bb-Erk">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="locationCell" textLabel="IaQ-s6-27x" detailTextLabel="ka6-mg-vj8" style="IBUITableViewCellStyleValue1" id="2Gm-lW-71S">
+                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="2Gm-lW-71S" id="JfV-gY-dni">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="IaQ-s6-27x">
+                                            <rect key="frame" x="20" y="12" width="33.5" height="20.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" adjustsFontForContentSizeCategory="YES" id="ka6-mg-vj8">
+                                            <rect key="frame" x="357.5" y="15" width="36.5" height="17"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <fontDescription key="fontDescription" type="system" weight="light" pointSize="14"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="MGg-AV-GDX" id="axz-LD-Sgd"/>
+                            <outlet property="delegate" destination="MGg-AV-GDX" id="GVU-jH-ok2"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hXq-9G-82d" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4923" y="583"/>
         </scene>
         <!--日历-->
         <scene sceneID="PJ3-ZD-bMk">
@@ -246,7 +325,7 @@
                                         <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wqS-Ng-Bn8">
                                             <rect key="frame" x="346" y="19" width="36" height="35"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" systemColor="linkColor" red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </view>
                                     </subviews>
                                     <constraints>

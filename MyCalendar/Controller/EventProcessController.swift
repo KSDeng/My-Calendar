@@ -9,10 +9,13 @@
 // References:
 // 1. https://github.com/itsmeichigo/DateTimePicker
 
+// MARK: TODOs
+// Expandable TableView Cell
+
 import UIKit
 import CoreData
 import DateTimePicker
-
+import MapKit
 
 protocol EventProcessDelegate {
     func addEvent(e: Task)
@@ -167,6 +170,7 @@ class EventProcessController: UITableViewController {
             })
         case "locationCell":
             print("Location cell clicked.")
+            
             self.view.endEditing(true)
         case "invitationCell":
             print("Invitation cell clicked.")
@@ -308,15 +312,21 @@ class EventProcessController: UITableViewController {
     }
     */
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
+        
+        // 添加地点
+        if segue.identifier == "showMap"{
+            let dest = (segue.destination) as! MapViewController
+            dest.delegate = self
+        }
     }
-    */
+    
 
 }
 
@@ -345,3 +355,10 @@ extension EventProcessController: DateTimePickerDelegate {
     }
 }
 
+extension EventProcessController: SetLocationHandle {
+    func setLocation(location: MKPlacemark) {
+        self.locationLabel.text = location.name
+    }
+    
+    
+}

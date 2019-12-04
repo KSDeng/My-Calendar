@@ -9,7 +9,6 @@ target 'MyCalendar' do
 
   # Pods for MyCalendar
   pod 'Alamofire'
-  pod 'DateTimePicker'
   pod 'MJRefresh'
   pod 'SwiftyJSON'
 

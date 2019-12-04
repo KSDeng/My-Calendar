@@ -16,6 +16,10 @@ class Utils {
         return formatter.string(from: date)
     }
     
+    // weekday与中文描述对应的map
+    // https://stackoverflow.com/questions/27990503/nsdatecomponents-returns-wrong-weekday
+    public static let weekDayMap = [ 1:"星期天", 2:"星期一", 3:"星期二", 4:"星期三", 5:"星期四", 6:"星期五", 7:"星期六" ]
+    
     // 节假日颜色
     public static let holidayColor = UIColor(red:0.09, green:0.63, blue:0.52, alpha:1.0)           // 绿
     

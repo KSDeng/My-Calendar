@@ -17,7 +17,6 @@
 // 一件事跨越多天
 // 地点调用地图进行选择
 // 联系人输入邮箱，发邮件邀请
-// 目前使用的datetimepicker不够方便
 // 只有列表视图翻起来不方便，最好再加上日历视图
 // 添加事务时不合理弹出Alert
 // 事务开始前提醒
@@ -78,9 +77,6 @@ class CalendarViewController: UITableViewController {
     // 时间格式化器
     let formatter = DateFormatter()
     
-    // weekday与中文描述对应的map
-    // https://stackoverflow.com/questions/27990503/nsdatecomponents-returns-wrong-weekday
-    let weekDayMap = [ 1:"星期天", 2:"星期一", 3:"星期二", 4:"星期三", 5:"星期四", 6:"星期五", 7:"星期六" ]
     
     // 年份是否已经获取了节假日信息
     var ifHolidayGot = Set<String>()
@@ -163,7 +159,7 @@ class CalendarViewController: UITableViewController {
         
         let dateContent = getDateAsFormat(date: date, format: "yyyy.MM.dd")
         
-        let weekDayContent = weekDayMap[Calendar.current.component(.weekday, from: date)]!
+        let weekDayContent = Utils.weekDayMap[Calendar.current.component(.weekday, from: date)]!
         
         let year = getDateAsFormat(date: date, format: "yyyy")
         if(!ifHolidayGot.contains(year)){
@@ -401,7 +397,6 @@ class CalendarViewController: UITableViewController {
                 case .Holiday:
                     taskView.backgroundColor = Utils.holidayColor
                 case .Adjust:
-                    //print("Adjust!")
                     taskView.backgroundColor = Utils.adjustDayColor
                 default:
                     print("Event type error while redering!")
@@ -417,7 +412,8 @@ class CalendarViewController: UITableViewController {
                 titleLabel.baselineAdjustment = .alignCenters
                 taskView.addSubview(titleLabel)
                 
-                if EventType(rawValue: event.type!) == .Task {
+                // 非全天任务添加时间标签
+                if !event.ifAllDay {
                     let timeLabel = UILabel(frame: CGRect(x: taskView.bounds.maxX - 120, y: taskView.bounds.minY + 7, width: 150, height: taskView.bounds.height * 0.6))
                     
                     let startTime = getDateAsFormat(date: event.startTime!, format: "HH:mm")
@@ -425,12 +421,14 @@ class CalendarViewController: UITableViewController {
                     
                     timeLabel.text = "\(startTime) ~ \(endTime)"
                     timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
-                    
-                    // 任务添加点击事件
+                    taskView.addSubview(timeLabel)
+                }
+                
+                // 任务添加点击事件
+                if EventType(rawValue: event.type!) == .Task{
                     let gesture = UITapGestureRecognizer(target: self, action: #selector(taskViewTapped))
                     taskView.addGestureRecognizer(gesture)
                     
-                    taskView.addSubview(timeLabel)
                 }
                 cell.addSubview(taskView)
             }
@@ -449,9 +447,15 @@ class CalendarViewController: UITableViewController {
         let detailController: EventProcessController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! EventProcessController
         // 传递数据
         detailController.currentEvent = getView.event!
-        print("Current event loc title:\(detailController.currentEvent!.locTitle)")
+        //print("Current event loc title:\(detailController.currentEvent!.locTitle)")
         detailController.currentEventIndex = getView.eventIndex!
         // print("Get view event id: \(getView.event!.id)")
+        
+        detailController.tmpStartDate = getView.event!.startDate
+        detailController.tmpStartTime = getView.event!.startTime
+        detailController.tmpEndDate = getView.event!.endDate
+        detailController.tmpEndTime = getView.event!.endTime
+        
         detailController.enterType = .Show          // 仅展示
         
         detailController.delegate = self

@@ -1,28 +1,24 @@
 PODS:
   - Alamofire (4.9.1)
-  - DateTimePicker (2.2.0)
   - MJRefresh (3.2.0)
   - SwiftyJSON (5.0.0)
 
 DEPENDENCIES:
   - Alamofire
-  - DateTimePicker
   - MJRefresh
   - SwiftyJSON
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
-    - DateTimePicker
     - MJRefresh
     - SwiftyJSON
 
 SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
-  DateTimePicker: f65c0ae594e85dcf39d2aaf6a8ce06dee7d15aa7
   MJRefresh: ed450d6eb9d3346a2cb033ab7eb6de090aeef437
   SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
 
-PODFILE CHECKSUM: ea065e12ea4ba1bc9394eeb27c2cc355529eccc0
+PODFILE CHECKSUM: af551ed9c2ac02e394abfdc8fc8d0c6619c2a184
 
 COCOAPODS: 1.5.2

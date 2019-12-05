@@ -80,6 +80,8 @@ class EventProcessController: UITableViewController {
     var ifShowStPicker = false
     var ifShowEdPicker = false
     
+    // 缓存邀请人联系方式
+    var tmpInvitations: [String] = []
     
     // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
     // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
@@ -175,7 +177,12 @@ class EventProcessController: UITableViewController {
                 ifAllDaySwitch.isOn = e.ifAllDay
                 
                 // 邀请
-                invitationLabel.text = ""
+                if tmpInvitations.isEmpty {
+                    invitationLabel.text = ""
+                } else {
+                    invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+                    invitationLabel.textColor = UIColor.black
+                }
                 
                 // 备注
                 noteTextField.text = e.note
@@ -337,7 +344,6 @@ class EventProcessController: UITableViewController {
         default:
             print("Clicked cell not handled.")
         }
-        
         tableView.deselectRow(at: indexPath, animated: true)
         tableView.beginUpdates()
         tableView.endUpdates()
@@ -345,6 +351,8 @@ class EventProcessController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         var res: CGFloat = 44
+        
+        // 时间设置栏
         if indexPath.section == 1 {
             if indexPath.row == 1 && ifShowStPicker{
                 res = 214
@@ -357,7 +365,10 @@ class EventProcessController: UITableViewController {
                 }
             }
         }
-        
+        // 邀请对象栏
+        if indexPath.section == 3 {
+            res += (44 * CGFloat(tmpInvitations.count))
+        }
         
         return res
     }
@@ -408,6 +419,27 @@ class EventProcessController: UITableViewController {
     }
     @objc func doneButtonAction(){
         self.view.endEditing(true)
+    }
+    
+    // 生成邀请记录
+    private func generateInvitationsRecord() -> String {
+        var res = ""
+        for (index, inv) in tmpInvitations.enumerated() {
+            res += inv
+            if index != tmpInvitations.count - 1 {
+                res += "|"
+            }
+        }
+        return res
+    }
+    
+    // 解析邀请记录
+    private func parseInvitationRecord(record: String) -> [String] {
+        var res: [String] = []
+        for slice in record.split(separator: "|"){
+            res.append("\(slice)")
+        }
+        return res
     }
     
     // 添加事件完成
@@ -581,7 +613,10 @@ class EventProcessController: UITableViewController {
                 dest.showLatitude = self.currentEvent?.locLatitude
             }
             dest.delegate = self
-            
+        } else if segue.identifier == "addInvitation"{
+            // 添加邀请对象
+            let dest = (segue.destination) as! InvitationViewController
+            dest.delegate = self
         }
     }
     
@@ -616,4 +651,12 @@ extension Date {
             return Date()
         }
     }
+}
+
+extension EventProcessController: InvitationDelegate {
+    func addInvitation(phoneNumber: String) {
+        print("Add invitation \(phoneNumber)")
+        tmpInvitations.append(phoneNumber)
+    }
+    
 }

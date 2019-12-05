@@ -14,6 +14,8 @@
 // 5. https://digitalleaves.com/segues-navigation-ios-basics/
 
 // MARK: TODO
+// 用户登录和验证
+// 发送notification
 // 一件事跨越多天
 // 地点调用地图进行选择
 // 联系人输入邮箱，发邮件邀请

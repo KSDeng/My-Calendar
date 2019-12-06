@@ -15,14 +15,21 @@
 import UIKit
 import MessageUI
 
+protocol DeleteInvitationDelegate {
+    func deleteInvitation(index: Int, inv: String)
+}
+
 class InvitationTableViewController: UITableViewController {
 
     // 存储每个邀请人的手机号
     var invitations: [String] = []
     
+    var delegate: DeleteInvitationDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        print("Number of invitations: \(invitations.count)")
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -34,7 +41,7 @@ class InvitationTableViewController: UITableViewController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return invitations.isEmpty ? 0 : 1
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -59,6 +66,14 @@ class InvitationTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 44
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
+        return "删除"
+    }
+    
     func addInvitation(invitation: String){
         invitations.append(invitation)
         tableView.reloadData()
@@ -66,7 +81,6 @@ class InvitationTableViewController: UITableViewController {
     
     
     
-
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -80,7 +94,9 @@ class InvitationTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
-            invitations.remove(at: indexPath.row)
+            let removeInv = invitations.remove(at: indexPath.row)
+            delegate?.deleteInvitation(index: indexPath.row, inv: removeInv)
+            
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view

@@ -10,7 +10,7 @@
 // 1. https://dev.to/lawgimenez/implementing-the-expandable-cell-in-ios-uitableview-f7j
 // 2. https://stackoverflow.com/questions/17018447/rounding-of-nsdate-to-nearest-hour-in-ios
 
-// MARK: TODOs
+// MARK: - TODOs
 // 1. 添加任务时进行数据合法性检查
 // 2. 编辑时间若起始时间更改一天要放到新的位置
 
@@ -18,19 +18,18 @@ import UIKit
 import CoreData
 import MapKit
 
+// MARK: - Protocols
 protocol EventProcessDelegate {
     func addEvent(e: Task)
     func editEvent(e: Task, index: Int, eventId: NSManagedObjectID)
     func deleteEvent(index: Int, eventId: NSManagedObjectID)
 }
 
-enum Status {
-    case Add, Edit, Show, Default
-}
 
 
 class EventProcessController: UITableViewController {
 
+    // MARK: - Outlets
     @IBOutlet weak var titleTextField: UITextField!
     
     @IBOutlet weak var ifAllDaySwitch: UISwitch!
@@ -53,9 +52,11 @@ class EventProcessController: UITableViewController {
     
     @IBOutlet weak var noteTextField: UITextField!
     
-    
+    // MARK: - Constants
     // 每个section的行数
     let numberOfRows = [1,3,1,1,1]
+    
+    // MARK: - Variables
     
     // 当前事件
     var currentEvent: Task?
@@ -64,8 +65,8 @@ class EventProcessController: UITableViewController {
     // 发布任务的代理
     var delegate: EventProcessDelegate?
     
-    // 进入当前视图的方式(增加和编辑)
-    var enterType = Status.Default
+    // 当前视图的状态(增加、编辑、展示、默认)
+    var status = Status.Default
     
     // 缓存DateTimePicker中的值
     var tmpStartDate: Date?
@@ -83,124 +84,20 @@ class EventProcessController: UITableViewController {
     // 缓存邀请人联系方式
     var tmpInvitations: [String] = []
     
-    // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
-    // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setVisibleContent()
-        
-        setDateTimePickers()
-        
-    }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        //titleTextField.becomeFirstResponder()
-        tableView.keyboardDismissMode = .onDrag
-        setupTextFields()
-        
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
-    }
-
-    
+    // MARK: - Setups
     private func setVisibleContent(){
-        // 编辑动作进入之前记得设置currentEvent
-        if enterType == .Edit {
-            if let e = currentEvent {
-                tmpStartDate = e.startDate!
-                tmpStartTime = e.startTime!
-                tmpEndDate = e.endDate!
-                tmpEndTime = e.endTime!
-                
-                // 标题
-                titleTextField.text = e.title
-                // 全天开关
-                ifAllDaySwitch.isOn = e.ifAllDay
-                startTimeButton.isHidden = ifAllDaySwitch.isOn
-                endTimeButton.isHidden = ifAllDaySwitch.isOn
-                
-                
-                // 时间
-                let sd = e.startDate!
-                let ed = e.endDate!
-                let weekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: sd)]!
-                startDateLabel.text = "\(Utils.getDateAsFormat(date: sd, format: "yyyy年M月d日")) \(weekday)"
-                startTimeButton.setTitle(Utils.getDateAsFormat(date: sd, format: "HH:mm"), for: .normal)
-                
-                let eWeekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: ed)]!
-                endDateLabel.text = "\(Utils.getDateAsFormat(date: ed, format: "yyyy年M月d日")) \(eWeekday)"
-                endTimeButton.setTitle(Utils.getDateAsFormat(date: ed, format: "HH:mm"), for: .normal)
-                
-                // 地点
-                locationLabel.text = e.locTitle
-                locationLabel.textColor = UIColor.black
-                invitationLabel.text = ""
-                noteTextField.text = e.note
-                
-            }else {
-                print("Edit detail error, current event is nil!")
-            }
+        
+        // 邀请
+        if !tmpInvitations.isEmpty {
+            invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+            invitationLabel.textColor = UIColor.black
+        } else {
+            invitationLabel.text = "添加邀请对象"
             
-        } else if enterType == .Show {
-            navigationItem.title = "事务详情"
-            
-            titleTextField.isUserInteractionEnabled = false
-            ifAllDaySwitch.isUserInteractionEnabled = false
-            startDateLabel.isUserInteractionEnabled = false
-            startTimeButton.isUserInteractionEnabled = false
-            endDateLabel.isUserInteractionEnabled = false
-            endTimeButton.isUserInteractionEnabled = false
-            invitationLabel.isUserInteractionEnabled = false
-            noteTextField.isUserInteractionEnabled = false
-            
-            if let e = currentEvent {
-                // 标题
-                titleTextField.text = e.title
-                // 时间
-                let weekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: e.startTime!)]!
-                startDateLabel.text = "\(Utils.getDateAsFormat(date: e.startDate!, format: "yyyy年M月d日")) \(weekday)"
-                startTimeButton.setTitle(Utils.getDateAsFormat(date: e.startTime!, format: "HH:mm"), for: .normal)
-                
-                let eWeekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: e.endTime!)]!
-                endDateLabel.text = "\(Utils.getDateAsFormat(date: e.endDate!, format: "yyyy年M月d日")) \(eWeekday)"
-                endTimeButton.setTitle(Utils.getDateAsFormat(date: e.endTime!, format: "HH:mm"), for: .normal)
-                
-                // 地点
-                locationLabel.text = e.locTitle
-                locationLabel.textColor = UIColor.black
-                
-                // 全天开关
-                ifAllDaySwitch.isOn = e.ifAllDay
-                
-                // 邀请
-                if tmpInvitations.isEmpty {
-                    invitationLabel.text = ""
-                } else {
-                    invitationLabel.text = "已邀请\(tmpInvitations.count)位"
-                    invitationLabel.textColor = UIColor.black
-                }
-                
-                // 备注
-                noteTextField.text = e.note
-                
-            }else {
-                print("Show detail error, current event is nil!")
-            }
-            
-            // navigationItem 某一侧添加多个BarButtonItem
-            // https://stackoverflow.com/questions/30341263/how-to-add-multiple-uibarbuttonitems-on-right-side-of-navigation-bar
-            let deleteButton = UIBarButtonItem(title: "删除", style: .plain, target: self, action: #selector(deleteButtonClicked))
-            // 设置bar button item 字体颜色
-            // https://stackoverflow.com/questions/664930/uibarbuttonitem-with-color
-            deleteButton.tintColor = UIColor.red
-            let editButton = UIBarButtonItem(title: "编辑", style: .plain, target: self, action: #selector(editButtonClicked))
-            
-            navigationItem.rightBarButtonItems = [deleteButton, editButton]
-        } else if enterType == .Add {
+        }
+        
+        switch status {
+        case .Add:
             ifAllDaySwitch.isOn = false
             
             let now = Date()
@@ -219,9 +116,115 @@ class EventProcessController: UITableViewController {
             endDateLabel.text = "\(Utils.getDateAsFormat(date: nextHour, format: "yyyy年M月d日")) \(weekday)"
             endTimeButton.setTitle(Utils.getDateAsFormat(date: nextHour.nearestHour(), format: "HH:mm"), for: .normal)
             
+            // 邀请
+            if !tmpInvitations.isEmpty {
+                invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+                invitationLabel.textColor = UIColor.black
+            }else {
+                invitationLabel.text = "添加邀请对象"
+                invitationLabel.textColor = UIColor.lightGray
+            }
+            
+        case .Edit:
+            if let e = currentEvent {
+                // 编辑动作进入之前记得设置currentEvent
+                tmpStartDate = e.startDate!
+                tmpStartTime = e.startTime!
+                tmpEndDate = e.endDate!
+                tmpEndTime = e.endTime!
+                
+                // 标题
+                titleTextField.text = e.title
+                // 全天开关
+                ifAllDaySwitch.isOn = e.ifAllDay
+                startTimeButton.isHidden = ifAllDaySwitch.isOn
+                endTimeButton.isHidden = ifAllDaySwitch.isOn
+                
+                setDateTimeLabels(e: e)
+                
+                // 地点
+                locationLabel.text = e.locTitle
+                locationLabel.textColor = UIColor.black
+                
+                // 邀请
+                if !tmpInvitations.isEmpty {
+                    invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+                    invitationLabel.textColor = UIColor.black
+                }else {
+                    invitationLabel.text = "添加邀请对象"
+                    invitationLabel.textColor = UIColor.lightGray
+                }
+                // 备注
+                noteTextField.text = e.note
+            }else{
+                print("Current event is nil!")
+            }
+        case .Show:
+            if let e = currentEvent {
+                navigationItem.title = "事务详情"
+                
+                titleTextField.isUserInteractionEnabled = false
+                ifAllDaySwitch.isUserInteractionEnabled = false
+                startDateLabel.isUserInteractionEnabled = false
+                startTimeButton.isUserInteractionEnabled = false
+                endDateLabel.isUserInteractionEnabled = false
+                endTimeButton.isUserInteractionEnabled = false
+                invitationLabel.isUserInteractionEnabled = false
+                noteTextField.isUserInteractionEnabled = false
+                
+                // 标题
+                titleTextField.text = e.title
+                // 时间
+                setDateTimeLabels(e: e)
+                // 地点
+                locationLabel.text = e.locTitle
+                locationLabel.textColor = UIColor.black
+                
+                // 全天开关
+                ifAllDaySwitch.isOn = e.ifAllDay
+                
+                // 邀请
+                if !tmpInvitations.isEmpty {
+                    invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+                    invitationLabel.textColor = UIColor.black
+                }else {
+                    invitationLabel.text = "暂无邀请对象"
+                    invitationLabel.textColor = UIColor.lightGray
+                }
+                
+                // 备注
+                noteTextField.text = e.note
+                
+                // navigationItem 某一侧添加多个BarButtonItem
+                // https://stackoverflow.com/questions/30341263/how-to-add-multiple-uibarbuttonitems-on-right-side-of-navigation-bar
+                let deleteButton = UIBarButtonItem(title: "删除", style: .plain, target: self, action: #selector(deleteButtonClicked))
+                // 设置bar button item 字体颜色
+                // https://stackoverflow.com/questions/664930/uibarbuttonitem-with-color
+                deleteButton.tintColor = UIColor.red
+                let editButton = UIBarButtonItem(title: "编辑", style: .plain, target: self, action: #selector(editButtonClicked))
+                
+                navigationItem.rightBarButtonItems = [deleteButton, editButton]
+            }else {
+                print("Current event is nil!")
+            }
+        default:
+            print("Status default.")
         }
+
     }
     
+    // 根据传入的任务设置日期和时间标签
+    private func setDateTimeLabels(e: Task) {
+        let weekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: e.startDate!)]!
+        startDateLabel.text = "\(Utils.getDateAsFormat(date: e.startDate!, format: "yyyy年M月d日")) \(weekday)"
+        startTimeButton.setTitle(Utils.getDateAsFormat(date: e.startTime!, format: "HH:mm"), for: .normal)
+        
+        let eWeekday = Utils.weekDayMap[Calendar.current.component(.weekday, from: e.endDate!)]!
+        endDateLabel.text = "\(Utils.getDateAsFormat(date: e.endDate!, format: "yyyy年M月d日")) \(eWeekday)"
+        endTimeButton.setTitle(Utils.getDateAsFormat(date: e.endTime!, format: "HH:mm"), for: .normal)
+    }
+    
+    // 设置DateTimePicker的初始状态
     private func setDateTimePickers(){
         startDateTimePicker.isHidden = true
         startDateTimePicker.datePickerMode = .date
@@ -232,7 +235,57 @@ class EventProcessController: UITableViewController {
         endDateTimePicker.locale = Locale(identifier: "zh")
         
     }
+    // 添加输入完成按钮
+    private func setupTextFields() {
+        let toolBar = UIToolbar(frame: CGRect(origin: .zero, size: .init(width: view.frame.width, height: 30)))
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneBtn = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(doneButtonAction))
+        
+        toolBar.setItems([flexSpace, doneBtn], animated: false)
+        toolBar.sizeToFit()
+        
+        self.titleTextField.inputAccessoryView = toolBar
+        self.noteTextField.inputAccessoryView = toolBar
+    }
     
+    // MARK: - View Life Cycle
+    // 从storyboard加载viewcontroller时viewdidload不会被调用，但viewWillAppear会被调用
+    // https://stackoverflow.com/questions/23474339/instantiateviewcontrollerwithidentifier-seems-to-call-viewdidload
+    override func viewWillAppear(_ animated: Bool) {
+        print("Event process view appear")
+        print("Status: \(status.rawValue)")
+        super.viewWillAppear(animated)
+        setVisibleContent()
+        
+        setDateTimePickers()
+        
+    }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        //titleTextField.becomeFirstResponder()
+        tableView.keyboardDismissMode = .onDrag
+        setupTextFields()
+        
+        if status == .Edit {
+            // 邀请
+            if !tmpInvitations.isEmpty {
+                invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+                invitationLabel.textColor = UIColor.black
+            }else {
+                invitationLabel.text = "添加邀请对象"
+                invitationLabel.textColor = UIColor.lightGray
+            }
+        }
+        
+        // Uncomment the following line to preserve selection between presentations
+        // self.clearsSelectionOnViewWillAppear = false
+
+        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+    }
+
+    // MARK: - Actions
     
     @IBAction func startDateTimePickerChanged(_ sender: UIDatePicker) {
         // print(sender.date)
@@ -277,6 +330,86 @@ class EventProcessController: UITableViewController {
         tableView.endUpdates()
     }
     
+    @IBAction func startTimeButtonClicked(_ sender: UIButton) {
+        if (!ifShowStPicker) {
+            startDateTimePicker.datePickerMode = .time
+            startDateTimePicker.locale = Locale(identifier: "en_GB")
+            ifShowStPicker = true
+        } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .date){
+            startDateTimePicker.datePickerMode = .time
+            startDateTimePicker.locale = Locale(identifier: "en_GB")
+        } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .time){
+            ifShowStPicker = false
+        }
+        startDateTimePicker.isHidden = !ifShowStPicker
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    @IBAction func endTimeButtonClicked(_ sender: UIButton) {
+        if (!ifShowEdPicker) {
+            endDateTimePicker.datePickerMode = .time
+            endDateTimePicker.locale = Locale(identifier: "en_GB")
+            ifShowEdPicker = true
+        } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .date){
+            endDateTimePicker.datePickerMode = .time
+            endDateTimePicker.locale = Locale(identifier: "en_GB")
+        } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .time){
+            ifShowEdPicker = false
+        }
+        endDateTimePicker.isHidden = !ifShowEdPicker
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    // 添加事件完成
+    @IBAction func saveEventAction(_ sender: Any) {
+        currentEvent = Task(context: Utils.context)
+        if let stDate = tmpStartDate, let stTime = tmpStartTime {
+            //print("Start date: \(stDate)")
+            //print("Start time: \(stTime)")
+            currentEvent?.startDate = stDate
+            currentEvent?.startTime = stTime
+        }
+        if let edDate = tmpEndDate, let edTime = tmpEndTime {
+            //print("End date: \(edDate)")
+            //print("End time: \(edTime)")
+            currentEvent?.endDate = edDate
+            currentEvent?.endTime = edTime
+        }
+        
+        if let currentEvent = currentEvent {
+            currentEvent.ifAllDay = ifAllDaySwitch.isOn
+            
+            currentEvent.dateIndex = Utils.getDateAsFormat(date: currentEvent.startDate!, format: "yyyy-MM-dd")
+            
+            currentEvent.arrayIndex = Int32(currentEventIndex)              // 数组下标
+            currentEvent.type = EventType.Task.rawValue
+            currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+            
+            // 设置位置信息
+            if let location = tmpLocation {
+                currentEvent.locTitle = location.name
+                currentEvent.locAddrDetail = location.title
+                currentEvent.locLongitude = location.coordinate.longitude
+                currentEvent.locLatitude = location.coordinate.latitude
+            }
+            
+            // currentEvent.invitations = nil          // TODO
+            currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+            currentEvent.colorPoint = Int16(Utils.currentColorPoint)
+            Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
+            
+            // print("ColorPoint: \(colorPoint)")
+            delegate?.addEvent(e: currentEvent)
+        }else{
+            print("No event to add error.")
+        }
+        
+        navigationController?.popViewController(animated: true)
+        
+    }
+    
     
     // MARK: - Table view data source
 
@@ -294,7 +427,7 @@ class EventProcessController: UITableViewController {
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         // 若是展示事务内容则将cell设置为不可选择
         // https://stackoverflow.com/questions/812426/uitableview-setting-some-cells-as-unselectable
-        if enterType == .Show {
+        if status == .Show {
             
             // 此时地点cell可以交互
             // https://stackoverflow.com/questions/2267993/uitableview-how-to-disable-selection-for-some-rows-but-not-others
@@ -366,128 +499,64 @@ class EventProcessController: UITableViewController {
             }
         }
         // 邀请对象栏
+        /*
         if indexPath.section == 3 {
             res += (44 * CGFloat(tmpInvitations.count))
         }
+        */
         
         return res
     }
     
-    @IBAction func startTimeButtonClicked(_ sender: UIButton) {
-        if (!ifShowStPicker) {
-            startDateTimePicker.datePickerMode = .time
-            startDateTimePicker.locale = Locale(identifier: "en_GB")
-            ifShowStPicker = true
-        } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .date){
-            startDateTimePicker.datePickerMode = .time
-            startDateTimePicker.locale = Locale(identifier: "en_GB")
-        } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .time){
-            ifShowStPicker = false
+    /*
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+
+        // Configure the cell...
+
+        return cell
+    }
+    */
+
+    /*
+    // Override to support conditional editing of the table view.
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        // Return false if you do not want the specified item to be editable.
+        return true
+    }
+    */
+
+    /*
+    // Override to support editing the table view.
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Delete the row from the data source
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        } else if editingStyle == .insert {
+            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }
-        startDateTimePicker.isHidden = !ifShowStPicker
-        tableView.beginUpdates()
-        tableView.endUpdates()
     }
+    */
+
+    /*
+    // Override to support rearranging the table view.
+    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
+
+    }
+    */
+
+    /*
+    // Override to support conditional rearranging of the table view.
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        // Return false if you do not want the item to be re-orderable.
+        return true
+    }
+    */
     
-    @IBAction func endTimeButtonClicked(_ sender: UIButton) {
-        if (!ifShowEdPicker) {
-            endDateTimePicker.datePickerMode = .time
-            endDateTimePicker.locale = Locale(identifier: "en_GB")
-            ifShowEdPicker = true
-        } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .date){
-            endDateTimePicker.datePickerMode = .time
-            endDateTimePicker.locale = Locale(identifier: "en_GB")
-        } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .time){
-            ifShowEdPicker = false
-        }
-        endDateTimePicker.isHidden = !ifShowEdPicker
-        tableView.beginUpdates()
-        tableView.endUpdates()
-    }
-    
-    // 添加输入完成按钮
-    private func setupTextFields() {
-        let toolBar = UIToolbar(frame: CGRect(origin: .zero, size: .init(width: view.frame.width, height: 30)))
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneBtn = UIBarButtonItem(title: "完成", style: .done, target: self, action: #selector(doneButtonAction))
-        
-        toolBar.setItems([flexSpace, doneBtn], animated: false)
-        toolBar.sizeToFit()
-        
-        self.titleTextField.inputAccessoryView = toolBar
-        self.noteTextField.inputAccessoryView = toolBar
-    }
+
+    // MARK: - Objc Functions
     @objc func doneButtonAction(){
         self.view.endEditing(true)
-    }
-    
-    // 生成邀请记录
-    private func generateInvitationsRecord() -> String {
-        var res = ""
-        for (index, inv) in tmpInvitations.enumerated() {
-            res += inv
-            if index != tmpInvitations.count - 1 {
-                res += "|"
-            }
-        }
-        return res
-    }
-    
-    // 解析邀请记录
-    private func parseInvitationRecord(record: String) -> [String] {
-        var res: [String] = []
-        for slice in record.split(separator: "|"){
-            res.append("\(slice)")
-        }
-        return res
-    }
-    
-    // 添加事件完成
-    @IBAction func saveEventAction(_ sender: Any) {
-        currentEvent = Task(context: Utils.context)
-        if let stDate = tmpStartDate, let stTime = tmpStartTime {
-            //print("Start date: \(stDate)")
-            //print("Start time: \(stTime)")
-            currentEvent?.startDate = stDate
-            currentEvent?.startTime = stTime
-        }
-        if let edDate = tmpEndDate, let edTime = tmpEndTime {
-            //print("End date: \(edDate)")
-            //print("End time: \(edTime)")
-            currentEvent?.endDate = edDate
-            currentEvent?.endTime = edTime
-        }
-        
-        if let currentEvent = currentEvent {
-            currentEvent.ifAllDay = ifAllDaySwitch.isOn
-            
-            currentEvent.dateIndex = Utils.getDateAsFormat(date: currentEvent.startDate!, format: "yyyy-MM-dd")
-            
-            currentEvent.arrayIndex = Int32(currentEventIndex)              // 数组下标
-            currentEvent.type = EventType.Task.rawValue
-            currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-            
-            // 设置位置信息
-            if let location = tmpLocation {
-                currentEvent.locTitle = location.name
-                currentEvent.locAddrDetail = location.title
-                currentEvent.locLongitude = location.coordinate.longitude
-                currentEvent.locLatitude = location.coordinate.latitude
-            }
-            
-            // currentEvent.invitations = nil          // TODO
-            currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
-            currentEvent.colorPoint = Int16(Utils.currentColorPoint)
-            Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
-            
-            // print("ColorPoint: \(colorPoint)")
-            delegate?.addEvent(e: currentEvent)
-        }else{
-            print("No event to add error.")
-        }
-        
-        navigationController?.popViewController(animated: true)
-        
     }
     
     @objc func deleteButtonClicked(){
@@ -506,7 +575,7 @@ class EventProcessController: UITableViewController {
         locationLabel.isUserInteractionEnabled = true
         invitationLabel.isUserInteractionEnabled = true
         noteTextField.isUserInteractionEnabled = true
-        enterType = .Edit
+        status = .Edit
         //titleTextField.becomeFirstResponder()
         
         let editConfirmButton = UIBarButtonItem(title: "保存", style: .plain, target: self, action: #selector(confirmEditButtonClicked))
@@ -538,52 +607,29 @@ class EventProcessController: UITableViewController {
         
         navigationController?.popViewController(animated: true)
     }
+
+    // MARK: - Private utils
+    // 生成邀请记录
+    private func generateInvitationsRecord() -> String {
+        var res = ""
+        for (index, inv) in tmpInvitations.enumerated() {
+            res += inv
+            if index != tmpInvitations.count - 1 {
+                res += "|"
+            }
+        }
+        return res
+    }
     
-    /*
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
-
-        // Configure the cell...
-
-        return cell
+    // 解析邀请记录
+    private func parseInvitationRecord(record: String) -> [String] {
+        var res: [String] = []
+        for slice in record.split(separator: "|"){
+            res.append("\(slice)")
+        }
+        return res
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
+    
     
     // MARK: - Navigation
 
@@ -597,15 +643,15 @@ class EventProcessController: UITableViewController {
             let dest = (segue.destination) as! MapViewController
             
             // 进入时设置Map状态
-            if enterType == .Add {
+            if status == .Add {
                 dest.state = .add
-            } else if enterType == .Show {
+            } else if status == .Show {
                 dest.state = .show
                 
                 dest.showTitle = self.currentEvent?.locTitle
                 dest.showLongitude = self.currentEvent?.locLongitude
                 dest.showLatitude = self.currentEvent?.locLatitude
-            } else if enterType == .Edit {
+            } else if status == .Edit {
                 dest.state = .edit
                 
                 dest.showTitle = self.currentEvent?.locTitle
@@ -616,13 +662,19 @@ class EventProcessController: UITableViewController {
         } else if segue.identifier == "addInvitation"{
             // 添加邀请对象
             let dest = (segue.destination) as! InvitationViewController
-            dest.delegate = self
+            dest.addDelegate = self
+            dest.deleteDelegate = self
+            if !tmpInvitations.isEmpty {
+                dest.currentInvitations = tmpInvitations
+                // dest.invitationTable?.invitations = tmpInvitations
+            }
         }
     }
     
 
 }
 
+// MARK: - Extensions
 extension EventProcessController: SetLocationHandle {
 
     func setLocation(location: MKPlacemark) {
@@ -653,10 +705,17 @@ extension Date {
     }
 }
 
-extension EventProcessController: InvitationDelegate {
+// 添加邀请对象
+extension EventProcessController: AddInvitationDelegate {
     func addInvitation(phoneNumber: String) {
         print("Add invitation \(phoneNumber)")
         tmpInvitations.append(phoneNumber)
     }
-    
+}
+
+extension EventProcessController: DeleteInvitationSecondDelegate {
+    func deleteInvitation(index: Int, inv: String) {
+        print("Delete invitation \(inv)")
+        tmpInvitations.remove(at: index)
+    }
 }

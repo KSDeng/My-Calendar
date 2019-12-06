@@ -20,6 +20,10 @@
 		0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* CalendarViewController.swift */; };
 		0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* EventProcessController.swift */; };
 		0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CD238BA89300FFF1EE /* CalendarCell.swift */; };
+		0AAF55C4239A557200306B96 /* Invitation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAF55C0239A557200306B96 /* Invitation+CoreDataClass.swift */; };
+		0AAF55C5239A557200306B96 /* Invitation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAF55C1239A557200306B96 /* Invitation+CoreDataProperties.swift */; };
+		0AAF55C6239A557200306B96 /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAF55C2239A557200306B96 /* Task+CoreDataClass.swift */; };
+		0AAF55C7239A557200306B96 /* Task+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AAF55C3239A557200306B96 /* Task+CoreDataProperties.swift */; };
 		0AB14DB72399276D00D3581F /* InvitationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DB62399276D00D3581F /* InvitationViewController.swift */; };
 		0AB14DB923992C0900D3581F /* InvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DB823992C0900D3581F /* InvitationCell.swift */; };
 		0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */; };
@@ -43,6 +47,10 @@
 		0A86C927238B814B007F3576 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
 		0A86C92B238B828F007F3576 /* EventProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProcessController.swift; sourceTree = "<group>"; };
 		0A9077CD238BA89300FFF1EE /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		0AAF55C0239A557200306B96 /* Invitation+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Invitation+CoreDataClass.swift"; sourceTree = "<group>"; };
+		0AAF55C1239A557200306B96 /* Invitation+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Invitation+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		0AAF55C2239A557200306B96 /* Task+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataClass.swift"; sourceTree = "<group>"; };
+		0AAF55C3239A557200306B96 /* Task+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		0AB14DB62399276D00D3581F /* InvitationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationViewController.swift; sourceTree = "<group>"; };
 		0AB14DB823992C0900D3581F /* InvitationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationCell.swift; sourceTree = "<group>"; };
 		0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationTableViewController.swift; sourceTree = "<group>"; };
@@ -115,6 +123,10 @@
 		0A9077CA238BA1F000FFF1EE /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0AAF55C0239A557200306B96 /* Invitation+CoreDataClass.swift */,
+				0AAF55C1239A557200306B96 /* Invitation+CoreDataProperties.swift */,
+				0AAF55C2239A557200306B96 /* Task+CoreDataClass.swift */,
+				0AAF55C3239A557200306B96 /* Task+CoreDataProperties.swift */,
 				0A9077CD238BA89300FFF1EE /* CalendarCell.swift */,
 				0A16E4642390DFE1003685C1 /* UIEventView.swift */,
 				0A64EB9E2393A18C00166D41 /* SpecialDay.swift */,
@@ -257,18 +269,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */,
+				0AAF55C6239A557200306B96 /* Task+CoreDataClass.swift in Sources */,
 				0ABAD6C52394F597005AE563 /* LocationSearchResultViewController.swift in Sources */,
 				0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */,
+				0AAF55C7239A557200306B96 /* Task+CoreDataProperties.swift in Sources */,
 				0AB14DB923992C0900D3581F /* InvitationCell.swift in Sources */,
 				0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */,
 				0A14D0FD2394B63600A8DB1F /* MapViewController.swift in Sources */,
 				0A09C3372392507600871FD6 /* Utils.swift in Sources */,
+				0AAF55C4239A557200306B96 /* Invitation+CoreDataClass.swift in Sources */,
 				0A64EB9F2393A18C00166D41 /* SpecialDay.swift in Sources */,
 				0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */,
 				0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */,
 				0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */,
 				0AB14DB72399276D00D3581F /* InvitationViewController.swift in Sources */,
 				0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */,
+				0AAF55C5239A557200306B96 /* Invitation+CoreDataProperties.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

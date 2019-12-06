@@ -11,17 +11,27 @@
 
 import UIKit
 
-protocol InvitationDelegate {
+// MARK: - Protocols
+protocol AddInvitationDelegate {
     func addInvitation(phoneNumber: String)
+}
+protocol DeleteInvitationSecondDelegate {
+    func deleteInvitation(index: Int, inv: String)
 }
 class InvitationViewController: UIViewController {
 
+    // MARK: - Outlets
     @IBOutlet weak var invitationPhoneNumberTextField: UITextField!
     
-    var delegate: InvitationDelegate?
+    // MARK: - Variables
+    var addDelegate: AddInvitationDelegate?
+    var deleteDelegate: DeleteInvitationSecondDelegate?
+    
+    var currentInvitations: [String] = []
     
     var invitationTable: InvitationTableViewController?
     
+    // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -30,9 +40,10 @@ class InvitationViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
+    // MARK: - Actions
     @IBAction func addButtonClicked(_ sender: UIButton) {
         if let phone = invitationPhoneNumberTextField.text {
-            delegate?.addInvitation(phoneNumber: phone)
+            addDelegate?.addInvitation(phoneNumber: phone)
             if let invitationTable = invitationTable {
                 invitationTable.addInvitation(invitation: phone)
                 invitationPhoneNumberTextField.text = ""
@@ -46,9 +57,7 @@ class InvitationViewController: UIViewController {
         navigationController?.popViewController(animated: true)
     }
     
-    
     // MARK: - Navigation
-
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
@@ -57,9 +66,17 @@ class InvitationViewController: UIViewController {
         if segue.identifier == "invitationTableViewSegue" {
             let dest = segue.destination as! InvitationTableViewController
             invitationTable = dest
-            
+            invitationTable?.delegate = self
+            for inv in currentInvitations {
+                invitationTable?.addInvitation(invitation: inv)
+            }
         }
     }
-    
 
+}
+
+extension InvitationViewController: DeleteInvitationDelegate {
+    func deleteInvitation(index: Int, inv: String) {
+        deleteDelegate?.deleteInvitation(index: index, inv: inv)
+    }
 }

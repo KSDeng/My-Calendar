@@ -41,5 +41,17 @@ class Utils {
     public static let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 }
 
+// 事件种类
+// 任务、节假日、节假日调休
+// Implicit raw value
+// String类型的raw value将默认与case同名
+enum EventType: String {
+    case Task
+    case Holiday
+    case Adjust
+}
 
-
+// 任务处理界面当前状态(增加、编辑、展示、默认)
+enum Status: String {
+    case Add, Edit, Show, Default
+}

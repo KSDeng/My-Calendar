@@ -6,14 +6,14 @@
 //  Copyright © 2019 dks. All rights reserved.
 //
 
-// References:
+// MARK: References
 // 1. https://github.com/CoderMJLee/MJRefresh
 // 2. https://learnappmaking.com/urlsession-swift-networking-how-to/
 // 3. http://timor.tech/api/holiday     // 节假日API文档
 // 4. https://stackoverflow.com/questions/31018447/how-to-programmatically-have-uitableview-scroll-to-a-specific-section
 // 5. https://digitalleaves.com/segues-navigation-ios-basics/
 
-// MARK: TODO
+// MARK: TODOs
 // 用户登录和验证
 // 发送notification
 // 一件事跨越多天
@@ -32,18 +32,27 @@ import Alamofire
 import SwiftyJSON
 import CoreData
 
-// 事件种类
-// 任务、节假日、节假日调休
-// Implicit raw value
-// String类型的raw value将默认与case同名
-enum EventType: String {
-    case Task
-    case Holiday
-    case Adjust
-}
 
 class CalendarViewController: UITableViewController {
 
+    // MARK: - Constants
+    // Refresh 一页大小
+    let pageSize = 15
+    
+    // 节假日请求接口地址
+    let holidayRequestURL = "http://timor.tech/api/holiday/year"
+    
+    // 日期索引格式
+    let dateIndexFormat = "yyyy-MM-dd"
+    
+    // 一行的高度
+    let rowHeight: CGFloat = 44
+    
+    // 一个事件卡片的高度
+    let evHeight: CGFloat = 40
+    
+    // MARK: - Variables
+    
     // 日期数组，用refresh动态加载
     // 第一个元素为形如"2019-11-27"的索引，第二个元素为初始显示的文字
     var days:[(String, String)] = []
@@ -60,75 +69,16 @@ class CalendarViewController: UITableViewController {
     
     var dateToday = ""
     
-    // refresh相关参数
-    let pageSize = 15
+    // refresh位置指针
     var startIndex = 0, endIndex = 0
-    
-    // 节假日请求接口地址
-    let holidayRequestURL = "http://timor.tech/api/holiday/year"
-    
-    // 日期索引格式
-    let dateIndexFormat = "yyyy-MM-dd"
-    
-    // 一行的高度
-    let rowHeight: CGFloat = 44
-    
-    // 一个事件卡片的高度
-    let evHeight: CGFloat = 40
-    
-    // 时间格式化器
-    let formatter = DateFormatter()
-    
     
     // 年份是否已经获取了节假日信息
     var ifHolidayGot = Set<String>()
     
     // 第一次加载
     var ifFirstTime = true
-    // 视图即将出现时完成初始化加载
-    override func viewWillAppear(_ animated: Bool) {
-        setup()
-        if (startIndex == 0){
-            loadRefresh(number: pageSize/2, direction: false)
-        }
-        if (endIndex == 0){
-            loadRefresh(number: pageSize, direction: true)
-        }
-        let year = getDateAsFormat(date: Date(), format: "yyyy")
-        if (!ifHolidayGot.contains(year)){
-            requestHolidayInfo(year: Int(year)!)
-            ifHolidayGot.insert(year)
-        }
-        
-        if ifFirstTime{
-            loadData()
-            for e in tasks {
-                if taskCount.keys.contains(e.dateIndex!){
-                    taskCount[e.dateIndex!]! += 1
-                }else{
-                    taskCount[e.dateIndex!] = 1
-                }
-            }
-            ifFirstTime = false
-        }
-    }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        //refreshHeights()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
-        
-        // tableView.scrollToRow(at: IndexPath(row: pageSize, section: 0), at: .middle, animated: true)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        saveData()
-    }
-    
+    // MARK: - Setups
     
     private func setup(){
         tableView.delegate = self
@@ -150,6 +100,57 @@ class CalendarViewController: UITableViewController {
         
     }
     
+    // MARK: - View Life Cycle
+    // 视图即将出现时完成初始化加载
+    override func viewWillAppear(_ animated: Bool) {
+        setup()
+        if (startIndex == 0){
+            loadRefresh(number: pageSize/2, direction: false)
+        }
+        if (endIndex == 0){
+            loadRefresh(number: pageSize, direction: true)
+        }
+        let year = Utils.getDateAsFormat(date: Date(), format: "yyyy")
+        if (!ifHolidayGot.contains(year)){
+            requestHolidayInfo(year: Int(year)!)
+            ifHolidayGot.insert(year)
+        }
+        
+        if ifFirstTime{
+            loadData()
+            for e in tasks {
+                if taskCount.keys.contains(e.dateIndex!){
+                    taskCount[e.dateIndex!]! += 1
+                }else{
+                    taskCount[e.dateIndex!] = 1
+                }
+            }
+            ifFirstTime = false
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Uncomment the following line to preserve selection between presentations
+        // self.clearsSelectionOnViewWillAppear = false
+
+        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
+        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        
+        // tableView.scrollToRow(at: IndexPath(row: pageSize, section: 0), at: .middle, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        saveData()
+    }
+    
+    
+    
+    
+    
+    // MARK: - Date Handlers
+    
     // 请求某天详细信息，参数为该天到今天的距离(之前为负，之后为正)
     private func requestDayInfo(daysFromToday: Int){
         // print("Days from today: \(daysFromToday)")
@@ -157,13 +158,13 @@ class CalendarViewController: UITableViewController {
         let date = dateForDayFromNow(daysInterval: daysFromToday)
         // print("Get date info of: \(date)")
         
-        let dateKey = getDateAsFormat(date: date, format: "yyyy-MM-dd")
+        let dateKey = Utils.getDateAsFormat(date: date, format: "yyyy-MM-dd")
         
-        let dateContent = getDateAsFormat(date: date, format: "yyyy.MM.dd")
+        let dateContent = Utils.getDateAsFormat(date: date, format: "yyyy.MM.dd")
         
         let weekDayContent = Utils.weekDayMap[Calendar.current.component(.weekday, from: date)]!
         
-        let year = getDateAsFormat(date: date, format: "yyyy")
+        let year = Utils.getDateAsFormat(date: date, format: "yyyy")
         if(!ifHolidayGot.contains(year)){
             requestHolidayInfo(year: Int(year)!)
             ifHolidayGot.insert(year)
@@ -215,6 +216,31 @@ class CalendarViewController: UITableViewController {
             }
         })
     }
+    // 更新数据源
+    private func updateDataSource(content: String, index: Int, dateKey: String){
+        
+        // print("Update data: \(content)")
+        if index == 0 {
+            days.append((dateKey, content))
+            dateToday = dateKey
+        } else if index < 0 {
+            days.insert((dateKey, content), at: 0)
+        } else{
+            days.append((dateKey, content))
+        }
+        // 设置初始高度
+        //heights[dateKey] = rowHeight
+        
+        // 未设置事件数量时才设为0，否则会把之前的覆盖掉！
+        if !taskCount.keys.contains(dateKey){
+            taskCount[dateKey] = 0
+        }
+        
+        // days.sort(by: {$0.0 < $1.0})
+        
+    }
+    
+    // MARK: - Event/Task Handlers
     
     private func doAddEvent(e: Task){
         tasks.append(e)
@@ -244,7 +270,15 @@ class CalendarViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    private func showEvents(){
+        print("Events:")
+        for e in tasks {
+            print(e)
+        }
+    }
     
+    
+    // MARK: - CoreData Handlers
     // 保存CoreData上下文
     private func saveData(){
         do {
@@ -266,47 +300,37 @@ class CalendarViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    private func showEvents(){
-        print("Events:")
-        for e in tasks {
-            print(e)
-        }
-    }
-    private func refreshHeights(){
-        print("Function refreshHeights")
-        for e in tasks{
-            print(e.dateIndex!)
-            if taskCount.keys.contains(e.dateIndex!){
-                taskCount[e.dateIndex!]! += 1
-            }else{
-                taskCount[e.dateIndex!] = 1
-            }
-        }
-        tableView.reloadData()
+    // MARK: - Refresh Handlers
+    // 下拉刷新
+    @objc private func downPullRefresh() {
+        loadRefresh(number: pageSize, direction: false)
+    
     }
     
-    // 更新数据源
-    private func updateDataSource(content: String, index: Int, dateKey: String){
-        
-        // print("Update data: \(content)")
-        if index == 0 {
-            days.append((dateKey, content))
-            dateToday = dateKey
-        } else if index < 0 {
-            days.insert((dateKey, content), at: 0)
-        } else{
-            days.append((dateKey, content))
+    // 上拉刷新
+    @objc private func upPullRefresh() {
+        loadRefresh(number: pageSize, direction: true)
+    }
+    
+    // 刷新加载
+    // direction == true, 上拉; direction == false, 下拉
+    private func loadRefresh(number: Int, direction: Bool){
+    
+        if direction {
+            for i in (endIndex ..< (endIndex + number)){
+                self.requestDayInfo(daysFromToday: i)
+            }
+            endIndex += number
+            tableView.reloadData()
+            tableView.mj_footer.endRefreshing()
+        }else {
+            for i in ((startIndex - number) ..< startIndex).reversed() {
+                self.requestDayInfo(daysFromToday: i)
+            }
+            startIndex -= pageSize
+            tableView.reloadData()
+            tableView.mj_header.endRefreshing()
         }
-        // 设置初始高度
-        //heights[dateKey] = rowHeight
-        
-        // 未设置事件数量时才设为0，否则会把之前的覆盖掉！
-        if !taskCount.keys.contains(dateKey){
-            taskCount[dateKey] = 0
-        }
-        
-        // days.sort(by: {$0.0 < $1.0})
-        
     }
     
 
@@ -418,8 +442,8 @@ class CalendarViewController: UITableViewController {
                 if !event.ifAllDay {
                     let timeLabel = UILabel(frame: CGRect(x: taskView.bounds.maxX - 120, y: taskView.bounds.minY + 7, width: 150, height: taskView.bounds.height * 0.6))
                     
-                    let startTime = getDateAsFormat(date: event.startTime!, format: "HH:mm")
-                    let endTime = getDateAsFormat(date: event.endTime!, format: "HH:mm")
+                    let startTime = Utils.getDateAsFormat(date: event.startTime!, format: "HH:mm")
+                    let endTime = Utils.getDateAsFormat(date: event.endTime!, format: "HH:mm")
                     
                     timeLabel.text = "\(startTime) ~ \(endTime)"
                     timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
@@ -458,7 +482,7 @@ class CalendarViewController: UITableViewController {
         detailController.tmpEndDate = getView.event!.endDate
         detailController.tmpEndTime = getView.event!.endTime
         
-        detailController.enterType = .Show          // 仅展示
+        detailController.status = .Show          // 仅展示
         
         detailController.delegate = self
         navigationItem.backBarButtonItem?.title = "返回"
@@ -485,37 +509,7 @@ class CalendarViewController: UITableViewController {
     }
     
     
-    // 下拉刷新
-    @objc private func downPullRefresh() {
-        loadRefresh(number: pageSize, direction: false)
     
-    }
-    
-    // 上拉刷新
-    @objc private func upPullRefresh() {
-        loadRefresh(number: pageSize, direction: true)
-    }
-    
-    // 刷新加载
-    // direction == true, 上拉; direction == false, 下拉
-    private func loadRefresh(number: Int, direction: Bool){
-    
-        if direction {
-            for i in (endIndex ..< (endIndex + number)){
-                self.requestDayInfo(daysFromToday: i)
-            }
-            endIndex += number
-            tableView.reloadData()
-            tableView.mj_footer.endRefreshing()
-        }else {
-            for i in ((startIndex - number) ..< startIndex).reversed() {
-                self.requestDayInfo(daysFromToday: i)
-            }
-            startIndex -= pageSize
-            tableView.reloadData()
-            tableView.mj_header.endRefreshing()
-        }
-    }
 
     override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         return nil
@@ -566,31 +560,21 @@ class CalendarViewController: UITableViewController {
             let dest = (segue.destination) as! EventProcessController
             dest.delegate = self
             // 动作为增加事件
-            dest.enterType = .Add
+            dest.status = .Add
             // 在context中创建新事件
             // 此时创建为时过早，因为还有可能取消添加
             // dest.currentEvent = Task(context: Utils.context)
         }
     }
-    
-    // 获取Date的指定部分
-    private func getDateAsFormat(date: Date, format: String) -> String {
-        formatter.timeZone = .autoupdatingCurrent
-        formatter.dateFormat = format
-        return formatter.string(from: date)
-    }
-    
-    
+
+    // MARK: - Actions
     @IBAction func backToToday(_ sender: UIBarButtonItem) {
         tableView.scrollToRow(at: IndexPath(row: -startIndex - 8, section: 0), at: .middle, animated: true)
     }
     
-    
-    private func loadEvents(){
-        
-    }
 }
 
+// MARK: - Extensions
 extension CalendarViewController: EventProcessDelegate {
     func editEvent(e: Task, index: Int, eventId: NSManagedObjectID) {
         tasks[index] = e

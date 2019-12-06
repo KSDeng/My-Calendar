@@ -9,14 +9,19 @@
 // https://stackoverflow.com/questions/20523874/uitableviewcontroller-inside-a-uiviewcontroller
 // https://stackoverflow.com/questions/34348275/pass-data-between-viewcontroller-and-containerviewcontroller
 
+// MARK: TODOs
+// 1. 从通讯录读取联系人信息
+// 2. 联系人包含称呼、联系方式
+// 3. 每个联系人添加一张图
+
 import UIKit
 
 // MARK: - Protocols
 protocol AddInvitationDelegate {
-    func addInvitation(phoneNumber: String)
+    func addInvitation(inv: CachedInvitation)
 }
 protocol DeleteInvitationSecondDelegate {
-    func deleteInvitation(index: Int, inv: String)
+    func deleteInvitation(index: Int, inv: CachedInvitation)
 }
 class InvitationViewController: UIViewController {
 
@@ -27,7 +32,7 @@ class InvitationViewController: UIViewController {
     var addDelegate: AddInvitationDelegate?
     var deleteDelegate: DeleteInvitationSecondDelegate?
     
-    var currentInvitations: [String] = []
+    var currentInvitations: [CachedInvitation] = []
     
     var invitationTable: InvitationTableViewController?
     
@@ -43,9 +48,10 @@ class InvitationViewController: UIViewController {
     // MARK: - Actions
     @IBAction func addButtonClicked(_ sender: UIButton) {
         if let phone = invitationPhoneNumberTextField.text {
-            addDelegate?.addInvitation(phoneNumber: phone)
+            let inv = CachedInvitation(phoneNumber: phone, editTime: Date())
+            addDelegate?.addInvitation(inv: inv)
             if let invitationTable = invitationTable {
-                invitationTable.addInvitation(invitation: phone)
+                invitationTable.addInvitation(invitation: inv)
                 invitationPhoneNumberTextField.text = ""
             }
         }
@@ -72,11 +78,10 @@ class InvitationViewController: UIViewController {
             }
         }
     }
-
 }
 
 extension InvitationViewController: DeleteInvitationDelegate {
-    func deleteInvitation(index: Int, inv: String) {
+    func deleteInvitation(index: Int, inv: CachedInvitation) {
         deleteDelegate?.deleteInvitation(index: index, inv: inv)
     }
 }

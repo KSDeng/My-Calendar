@@ -16,13 +16,13 @@ import UIKit
 import MessageUI
 
 protocol DeleteInvitationDelegate {
-    func deleteInvitation(index: Int, inv: String)
+    func deleteInvitation(index: Int, inv: CachedInvitation)
 }
 
 class InvitationTableViewController: UITableViewController {
 
-    // 存储每个邀请人的手机号
-    var invitations: [String] = []
+    // 邀请记录
+    var invitations: [CachedInvitation] = []
     
     var delegate: DeleteInvitationDelegate?
     
@@ -54,7 +54,7 @@ class InvitationTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "InvitationCell", for: indexPath) as! InvitationCell
 
         // Configure the cell...
-        cell.phoneNumberLabel.text = invitations[indexPath.row]
+        cell.phoneNumberLabel.text = invitations[indexPath.row].phoneNumber
         cell.messageAction = {phoneNumber in self.sendMessage(message: "Hello!", phoneNumber: phoneNumber)}
         // cell.personImage.image = UIImage(named: "clock")
         
@@ -74,7 +74,7 @@ class InvitationTableViewController: UITableViewController {
         return "删除"
     }
     
-    func addInvitation(invitation: String){
+    func addInvitation(invitation: CachedInvitation){
         invitations.append(invitation)
         tableView.reloadData()
     }

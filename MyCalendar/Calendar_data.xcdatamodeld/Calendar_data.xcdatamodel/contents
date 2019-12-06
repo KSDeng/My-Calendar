@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14903" systemVersion="18G87" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Invitation" representedClassName="Invitation" syncable="YES">
+        <attribute name="lastEditTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="phoneNumber" optional="YES" attributeType="String"/>
-        <attribute name="time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="belongedTo" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="invitations" inverseEntity="Task"/>
+        <relationship name="belongedTo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="invitations" inverseEntity="Task"/>
     </entity>
     <entity name="Task" representedClassName="Task" syncable="YES">
         <attribute name="arrayIndex" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>

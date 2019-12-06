@@ -17,7 +17,6 @@
 // 用户登录和验证
 // 发送notification
 // 一件事跨越多天
-// 地点调用地图进行选择
 // 联系人输入邮箱，发邮件邀请
 // 只有列表视图翻起来不方便，最好再加上日历视图
 // 添加事务时不合理弹出Alert
@@ -31,7 +30,6 @@ import MJRefresh
 import Alamofire
 import SwiftyJSON
 import CoreData
-
 
 class CalendarViewController: UITableViewController {
 
@@ -369,6 +367,7 @@ class CalendarViewController: UITableViewController {
         
         var eventCount = 0
         
+        // 特殊日期
         if let sds = specialDays[day.0]{
             for (index, sd) in sds.enumerated() {
                 //print("Special day: \(sd.title)")
@@ -390,7 +389,7 @@ class CalendarViewController: UITableViewController {
                 titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
                 titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
                 
-                titleLabel.baselineAdjustment = .alignCenters
+                titleLabel.baselineAdjustment = .alignCenters           // 防止自适应后位置偏移
                 sdView.addSubview(titleLabel)
                 
                 cell.addSubview(sdView)
@@ -481,6 +480,15 @@ class CalendarViewController: UITableViewController {
         detailController.tmpStartTime = getView.event!.startTime
         detailController.tmpEndDate = getView.event!.endDate
         detailController.tmpEndTime = getView.event!.endTime
+        
+        // 设置邀请列表
+        // https://stackoverflow.com/questions/36954095/iterate-nsset-and-cast-to-type-in-one-step
+        for case let inv as Invitation in getView.event!.invitations! {
+            let cachedInv = CachedInvitation(phoneNumber: inv.phoneNumber!, editTime: inv.lastEditTime!)
+            detailController.tmpInvitations.append(cachedInv)
+        }
+        // 按上次编辑时间排序
+        detailController.tmpInvitations.sort(by: {$0.lastEditTime < $1.lastEditTime})
         
         detailController.status = .Show          // 仅展示
         

@@ -19,7 +19,7 @@ extension Invitation {
 
     @NSManaged public var name: String?
     @NSManaged public var phoneNumber: String?
-    @NSManaged public var time: Date?
+    @NSManaged public var lastEditTime: Date?
     @NSManaged public var belongedTo: Task?
 
 }

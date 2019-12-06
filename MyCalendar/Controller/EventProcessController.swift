@@ -11,8 +11,7 @@
 // 2. https://stackoverflow.com/questions/17018447/rounding-of-nsdate-to-nearest-hour-in-ios
 
 // MARK: - TODOs
-// 1. 添加任务时进行数据合法性检查
-// 2. 编辑时间若起始时间更改一天要放到新的位置
+// 1.编辑时间若起始时间更改一天要放到新的位置
 
 import UIKit
 import CoreData
@@ -24,8 +23,6 @@ protocol EventProcessDelegate {
     func editEvent(e: Task, index: Int, eventId: NSManagedObjectID)
     func deleteEvent(index: Int, eventId: NSManagedObjectID)
 }
-
-
 
 class EventProcessController: UITableViewController {
 
@@ -74,6 +71,33 @@ class EventProcessController: UITableViewController {
     var tmpEndDate: Date?
     var tmpEndTime: Date?
     
+    // 时间设置是否合法
+    var ifTimeSettingValid = true
+    
+    // 当前设置的开始时间和结束时间
+    var cachedST: Date? {
+        willSet {
+            if let st = newValue, let et = cachedET, !ifAllDaySwitch.isOn {
+                ifTimeSettingValid = !(st > et)
+                startDateLabel.textColor = st > et ? UIColor.red : UIColor.black
+                startTimeButton.setTitleColor(st > et ? UIColor.red : UIColor.black, for: .normal)
+                endDateLabel.textColor = st > et ? UIColor.red : UIColor.black
+                endTimeButton.setTitleColor(st > et ? UIColor.red : UIColor.black, for: .normal)
+            }
+        }
+    }
+    var cachedET: Date? {
+        willSet {
+            if let st = cachedST, let et = newValue, !ifAllDaySwitch.isOn {
+                ifTimeSettingValid = !(st > et)
+                startDateLabel.textColor = st > et ? UIColor.red : UIColor.black
+                startTimeButton.setTitleColor(st > et ? UIColor.red : UIColor.black, for: .normal)
+                endDateLabel.textColor = st > et ? UIColor.red : UIColor.black
+                endTimeButton.setTitleColor(st > et ? UIColor.red : UIColor.black, for: .normal)
+            }
+        }
+    }
+    
     // 添加地点时缓存
     var tmpLocation: MKPlacemark?
     
@@ -82,7 +106,9 @@ class EventProcessController: UITableViewController {
     var ifShowEdPicker = false
     
     // 缓存邀请人联系方式
-    var tmpInvitations: [String] = []
+    // var tmpInvitations: [String] = []
+    var tmpInvitations: [CachedInvitation] = []
+    
     
     // MARK: - Setups
     private func setVisibleContent(){
@@ -98,7 +124,7 @@ class EventProcessController: UITableViewController {
         
         switch status {
         case .Add:
-            ifAllDaySwitch.isOn = false
+            // ifAllDaySwitch.isOn = false
             
             let now = Date()
             let nextHour = Date.init(timeInterval: 60*60, since: Date())
@@ -109,12 +135,16 @@ class EventProcessController: UITableViewController {
             tmpStartTime = now.nearestHour()
             tmpEndDate = nextHour.nearestHour()
             tmpEndTime = nextHour.nearestHour()
+            cachedST = tmpStartDate
+            cachedET = tmpEndDate
             
-            startDateLabel.text = "\(Utils.getDateAsFormat(date: Date(), format: "yyyy年M月d日")) \(weekday)"
-            startTimeButton.setTitle(Utils.getDateAsFormat(date: Date().nearestHour(), format: "HH:mm"), for: .normal)
+            startDateLabel.text = "\(Utils.getDateAsFormat(date: now.nearestHour(), format: "yyyy年M月d日")) \(weekday)"
+            startTimeButton.setTitle(Utils.getDateAsFormat(date: now.nearestHour(), format: "HH:mm"), for: .normal)
             
-            endDateLabel.text = "\(Utils.getDateAsFormat(date: nextHour, format: "yyyy年M月d日")) \(weekday)"
+            endDateLabel.text = "\(Utils.getDateAsFormat(date: nextHour.nearestHour(), format: "yyyy年M月d日")) \(weekday)"
             endTimeButton.setTitle(Utils.getDateAsFormat(date: nextHour.nearestHour(), format: "HH:mm"), for: .normal)
+            
+            
             
             // 邀请
             if !tmpInvitations.isEmpty {
@@ -127,11 +157,14 @@ class EventProcessController: UITableViewController {
             
         case .Edit:
             if let e = currentEvent {
+                print("Pre settings in edit...")
                 // 编辑动作进入之前记得设置currentEvent
                 tmpStartDate = e.startDate!
                 tmpStartTime = e.startTime!
                 tmpEndDate = e.endDate!
                 tmpEndTime = e.endTime!
+                cachedST = getTimeCombined(date: tmpStartDate, time: tmpStartTime)
+                cachedET = getTimeCombined(date: tmpEndDate, time: tmpEndTime)
                 
                 // 标题
                 titleTextField.text = e.title
@@ -182,6 +215,10 @@ class EventProcessController: UITableViewController {
                 
                 // 全天开关
                 ifAllDaySwitch.isOn = e.ifAllDay
+                if ifAllDaySwitch.isOn {
+                    startTimeButton.isHidden = true
+                    endTimeButton.isHidden = true
+                }
                 
                 // 邀请
                 if !tmpInvitations.isEmpty {
@@ -299,6 +336,10 @@ class EventProcessController: UITableViewController {
             tmpStartTime = date
             startTimeButton.setTitle(Utils.getDateAsFormat(date: date, format: "HH:mm"), for: .normal)
         }
+        
+        cachedST = getTimeCombined(date: tmpStartDate, time: tmpStartTime)
+        print("cachedST: \(Utils.getDateAsFormat(date: cachedST!, format: "yyyy/M/d HH:mm"))")
+        print("cachedET: \(Utils.getDateAsFormat(date: cachedET!, format: "yyyy/M/d HH:mm"))")
     }
     
     @IBAction func endDateTimePickerChanged(_ sender: UIDatePicker) {
@@ -313,10 +354,20 @@ class EventProcessController: UITableViewController {
             tmpEndTime = date
             endTimeButton.setTitle(Utils.getDateAsFormat(date: date, format: "HH:mm"), for: .normal)
         }
+        
+        cachedET = getTimeCombined(date: tmpEndDate, time: tmpEndTime)
+        print("cachedST: \(Utils.getDateAsFormat(date: cachedST!, format: "yyyy/M/d HH:mm"))")
+        print("cachedET: \(Utils.getDateAsFormat(date: cachedET!, format: "yyyy/M/d HH:mm"))")
     }
     
     @IBAction func allDaySwitchChanged(_ sender: UISwitch) {
         if sender.isOn {
+            ifTimeSettingValid = true
+            startDateLabel.textColor = UIColor.black
+            startTimeButton.setTitleColor(UIColor.black, for: .normal)
+            endDateLabel.textColor = UIColor.black
+            endTimeButton.setTitleColor(UIColor.black, for: .normal)
+            
             startTimeButton.isHidden = true
             endTimeButton.isHidden = true
             endDateLabel.isUserInteractionEnabled = false
@@ -341,6 +392,10 @@ class EventProcessController: UITableViewController {
         } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .time){
             ifShowStPicker = false
         }
+        guard let tmpST = tmpStartTime else {
+            fatalError("tmpStartTime does not exist!")
+        }
+        startDateTimePicker.date = tmpST
         startDateTimePicker.isHidden = !ifShowStPicker
         tableView.beginUpdates()
         tableView.endUpdates()
@@ -357,6 +412,10 @@ class EventProcessController: UITableViewController {
         } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .time){
             ifShowEdPicker = false
         }
+        guard let tmpET = tmpEndTime else {
+            fatalError("tmpEndTime does not exist!")
+        }
+        endDateTimePicker.date = tmpET
         endDateTimePicker.isHidden = !ifShowEdPicker
         tableView.beginUpdates()
         tableView.endUpdates()
@@ -364,6 +423,14 @@ class EventProcessController: UITableViewController {
     
     // 添加事件完成
     @IBAction func saveEventAction(_ sender: Any) {
+        // https://learnappmaking.com/uialertcontroller-alerts-swift-how-to/
+        if !ifTimeSettingValid {
+            let alert = UIAlertController(title: "时间设置错误", message: "开始时间不能晚于结束时间!", preferredStyle: .actionSheet)
+            alert.addAction(UIAlertAction(title: "好", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
         currentEvent = Task(context: Utils.context)
         if let stDate = tmpStartDate, let stTime = tmpStartTime {
             //print("Start date: \(stDate)")
@@ -395,7 +462,14 @@ class EventProcessController: UITableViewController {
                 currentEvent.locLatitude = location.coordinate.latitude
             }
             
-            // currentEvent.invitations = nil          // TODO
+            // 添加邀请信息
+            for inv in tmpInvitations {
+                let NS_inv = Invitation(context: Utils.context)
+                NS_inv.phoneNumber = inv.phoneNumber
+                NS_inv.lastEditTime = Date()
+                currentEvent.invitations = currentEvent.invitations?.adding(NS_inv) as NSSet?
+            }
+            // 备注
             currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
             currentEvent.colorPoint = Int16(Utils.currentColorPoint)
             Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
@@ -429,9 +503,9 @@ class EventProcessController: UITableViewController {
         // https://stackoverflow.com/questions/812426/uitableview-setting-some-cells-as-unselectable
         if status == .Show {
             
-            // 此时地点cell可以交互
+            // 此时地点和邀请栏可以交互
             // https://stackoverflow.com/questions/2267993/uitableview-how-to-disable-selection-for-some-rows-but-not-others
-            return indexPath.section == 2 ? indexPath : nil
+            return (indexPath.section == 2) ? indexPath : nil
             
         }
         
@@ -460,6 +534,10 @@ class EventProcessController: UITableViewController {
             } else if (ifShowStPicker && startDateTimePicker.datePickerMode == .date){
                 ifShowStPicker = false
             }
+            guard let tmpSD = tmpStartDate else {
+                fatalError("tmpStartDate doesn't exist!")
+            }
+            startDateTimePicker.date = tmpSD
             startDateTimePicker.isHidden = !ifShowStPicker
         case "endTimeCell":
             
@@ -473,6 +551,10 @@ class EventProcessController: UITableViewController {
             } else if (ifShowEdPicker && endDateTimePicker.datePickerMode == .date){
                 ifShowEdPicker = false
             }
+            guard let tmpED = tmpEndDate else {
+                fatalError("tmpEndDate doesn't exist!")
+            }
+            endDateTimePicker.date = tmpED
             endDateTimePicker.isHidden = !ifShowEdPicker
         default:
             print("Clicked cell not handled.")
@@ -580,10 +662,32 @@ class EventProcessController: UITableViewController {
         
         let editConfirmButton = UIBarButtonItem(title: "保存", style: .plain, target: self, action: #selector(confirmEditButtonClicked))
         navigationItem.rightBarButtonItems = [editConfirmButton]
+        
+        // 设置这两个变量相当于开启时间检查
+        cachedST = getTimeCombined(date: tmpStartDate, time: tmpStartTime)
+        cachedET = getTimeCombined(date: tmpEndDate, time: tmpEndTime)
+        
+        // 邀请
+        if !tmpInvitations.isEmpty {
+            invitationLabel.text = "已邀请\(tmpInvitations.count)位"
+            invitationLabel.textColor = UIColor.black
+        } else {
+            invitationLabel.text = "添加邀请对象"
+            
+        }
     }
     
     @objc func confirmEditButtonClicked(){
+        if !ifTimeSettingValid {
+            let alert = UIAlertController(title: "时间设置错误", message: "开始时间不能晚于结束时间!", preferredStyle: .actionSheet)
+            alert.addAction(UIAlertAction(title: "好", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        
         if let currentEvent = currentEvent {
+            currentEvent.dateIndex = Utils.getDateAsFormat(date: tmpStartDate!, format: "yyyy-MM-dd")
+            
             currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
             currentEvent.ifAllDay = ifAllDaySwitch.isOn
             currentEvent.startDate = tmpStartDate
@@ -598,6 +702,19 @@ class EventProcessController: UITableViewController {
                 currentEvent.locLongitude = location.coordinate.longitude
                 currentEvent.locLatitude = location.coordinate.latitude
             }
+            // 删除当前邀请记录并重新添加
+            for inv in currentEvent.invitations! {
+                Utils.context.delete(inv as! NSManagedObject)
+            }
+            
+            for inv in tmpInvitations{
+                let NS_Inv = Invitation(context: Utils.context)
+                NS_Inv.belongedTo = currentEvent
+                NS_Inv.lastEditTime = inv.lastEditTime
+                NS_Inv.phoneNumber = inv.phoneNumber
+                currentEvent.invitations = currentEvent.invitations?.adding(NS_Inv) as NSSet?
+            }
+            
             // currentEvent.invitations = nil          // TODO
             currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
             delegate?.editEvent(e: currentEvent, index: currentEventIndex, eventId: currentEvent.objectID)
@@ -609,27 +726,20 @@ class EventProcessController: UITableViewController {
     }
 
     // MARK: - Private utils
-    // 生成邀请记录
-    private func generateInvitationsRecord() -> String {
-        var res = ""
-        for (index, inv) in tmpInvitations.enumerated() {
-            res += inv
-            if index != tmpInvitations.count - 1 {
-                res += "|"
-            }
+    private func getTimeCombined(date: Date?, time: Date?) -> Date {
+        guard let tmpD = date, let tmpT = time else {
+            fatalError("date or time does not exist!")
         }
-        return res
-    }
-    
-    // 解析邀请记录
-    private func parseInvitationRecord(record: String) -> [String] {
-        var res: [String] = []
-        for slice in record.split(separator: "|"){
-            res.append("\(slice)")
+        let dateString = Utils.getDateAsFormat(date: tmpD, format: "yyyyMMdd")
+        let timeString = Utils.getDateAsFormat(date: tmpT, format: "HHmm")
+        let f = DateFormatter()
+        f.dateFormat = "yyyyMMddHHmm"
+        let getT = f.date(from: "\(dateString)\(timeString)")
+        guard let T = getT else {
+            fatalError("Current time invalid!")
         }
-        return res
+        return T
     }
-    
     
     // MARK: - Navigation
 
@@ -668,6 +778,9 @@ class EventProcessController: UITableViewController {
                 dest.currentInvitations = tmpInvitations
                 // dest.invitationTable?.invitations = tmpInvitations
             }
+            if status == .Show {
+                
+            }
         }
     }
     
@@ -705,17 +818,17 @@ extension Date {
     }
 }
 
-// 添加邀请对象
+// 添加邀请
 extension EventProcessController: AddInvitationDelegate {
-    func addInvitation(phoneNumber: String) {
-        print("Add invitation \(phoneNumber)")
-        tmpInvitations.append(phoneNumber)
+    func addInvitation(inv: CachedInvitation) {
+        print("Add invitation \(inv.phoneNumber) in event process controller.")
+        tmpInvitations.append(inv)
     }
 }
-
+// 删除邀请
 extension EventProcessController: DeleteInvitationSecondDelegate {
-    func deleteInvitation(index: Int, inv: String) {
-        print("Delete invitation \(inv)")
+    func deleteInvitation(index: Int, inv: CachedInvitation) {
+        print("Delete invitation \(inv.phoneNumber) in event process controller.")
         tmpInvitations.remove(at: index)
     }
 }

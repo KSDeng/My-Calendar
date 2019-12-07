@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		0A09C3372392507600871FD6 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A09C3362392507600871FD6 /* Utils.swift */; };
 		0A14D0FD2394B63600A8DB1F /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A14D0FC2394B63600A8DB1F /* MapViewController.swift */; };
-		0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16E4642390DFE1003685C1 /* UIEventView.swift */; };
+		0A16E4652390DFE1003685C1 /* TaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A16E4642390DFE1003685C1 /* TaskView.swift */; };
 		0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A419BFB2378EF9400CB415D /* AppDelegate.swift */; };
 		0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A419BFD2378EF9400CB415D /* SceneDelegate.swift */; };
 		0A419C032378EF9400CB415D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C012378EF9400CB415D /* Main.storyboard */; };
@@ -35,7 +35,7 @@
 /* Begin PBXFileReference section */
 		0A09C3362392507600871FD6 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		0A14D0FC2394B63600A8DB1F /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
-		0A16E4642390DFE1003685C1 /* UIEventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIEventView.swift; sourceTree = "<group>"; };
+		0A16E4642390DFE1003685C1 /* TaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskView.swift; sourceTree = "<group>"; };
 		0A419BF82378EF9400CB415D /* MyCalendar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyCalendar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A419BFB2378EF9400CB415D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0A419BFD2378EF9400CB415D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -130,7 +130,7 @@
 				0AD9AA56239A8D6500D3F0CE /* Task+CoreDataClass.swift */,
 				0AD9AA57239A8D6500D3F0CE /* Task+CoreDataProperties.swift */,
 				0A9077CD238BA89300FFF1EE /* CalendarCell.swift */,
-				0A16E4642390DFE1003685C1 /* UIEventView.swift */,
+				0A16E4642390DFE1003685C1 /* TaskView.swift */,
 				0A64EB9E2393A18C00166D41 /* SpecialDay.swift */,
 				0AB14DB823992C0900D3581F /* InvitationCell.swift */,
 				0AD9AA5C239A8DF000D3F0CE /* CachedInvitation.swift */,
@@ -287,7 +287,7 @@
 				0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */,
 				0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */,
 				0AB14DB72399276D00D3581F /* InvitationViewController.swift in Sources */,
-				0A16E4652390DFE1003685C1 /* UIEventView.swift in Sources */,
+				0A16E4652390DFE1003685C1 /* TaskView.swift in Sources */,
 				0AD9AA59239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);

@@ -146,7 +146,6 @@ class CalendarViewController: UITableViewController {
     
     
     
-    
     // MARK: - Date Handlers
     
     // 请求某天详细信息，参数为该天到今天的距离(之前为负，之后为正)
@@ -268,13 +267,6 @@ class CalendarViewController: UITableViewController {
         tableView.reloadData()
     }
     
-    private func showEvents(){
-        print("Events:")
-        for e in tasks {
-            print(e)
-        }
-    }
-    
     
     // MARK: - CoreData Handlers
     // 保存CoreData上下文
@@ -328,6 +320,14 @@ class CalendarViewController: UITableViewController {
             startIndex -= pageSize
             tableView.reloadData()
             tableView.mj_header.endRefreshing()
+        }
+    }
+    
+    // MARK: - Private utils
+    private func showTasks(){
+        print("Show tasks:")
+        for task in tasks {
+            print(task)
         }
     }
     
@@ -410,7 +410,7 @@ class CalendarViewController: UITableViewController {
                 evY += (CGFloat(eventCount) * (evHeight + 2))
                 eventCount += 1
                 
-                let taskView = UIEventView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
+                let taskView = TaskView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
                 
                 taskView.dateIndex = day.0
                 taskView.eventIndex = tasks.firstIndex(of: event)!
@@ -466,7 +466,7 @@ class CalendarViewController: UITableViewController {
     // 点击事件视图
     @objc func taskViewTapped(sender: UITapGestureRecognizer){
         // print("Event view tapped!")
-        let getView = sender.view as! UIEventView
+        let getView = sender.view as! TaskView
         // 从storyboard加载View Controller
         // https://coderwall.com/p/cjuzng/swift-instantiate-a-view-controller-using-its-storyboard-name-in-xcode
         let detailController: EventProcessController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! EventProcessController
@@ -585,6 +585,7 @@ class CalendarViewController: UITableViewController {
 // MARK: - Extensions
 extension CalendarViewController: EventProcessDelegate {
     func editEvent(e: Task, index: Int, eventId: NSManagedObjectID) {
+        
         tasks[index] = e
         tasks.sort(by: {$0.startTime! < $1.startTime!})
         tableView.reloadData()

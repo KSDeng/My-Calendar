@@ -9,7 +9,7 @@
 import UIKit
 
 // 添加在每个单元格的事件视图
-class UIEventView: UIView {
+class TaskView: UIView {
 
     var dateIndex: String?
     var eventIndex: Int?

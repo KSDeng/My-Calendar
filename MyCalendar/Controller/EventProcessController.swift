@@ -11,7 +11,6 @@
 // 2. https://stackoverflow.com/questions/17018447/rounding-of-nsdate-to-nearest-hour-in-ios
 
 // MARK: - TODOs
-// 1.编辑时间若起始时间更改一天要放到新的位置
 
 import UIKit
 import CoreData
@@ -686,38 +685,83 @@ class EventProcessController: UITableViewController {
         }
         
         if let currentEvent = currentEvent {
-            currentEvent.dateIndex = Utils.getDateAsFormat(date: tmpStartDate!, format: "yyyy-MM-dd")
-            
-            currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
-            currentEvent.ifAllDay = ifAllDaySwitch.isOn
-            currentEvent.startDate = tmpStartDate
-            currentEvent.startTime = tmpStartTime
-            currentEvent.endDate = tmpEndDate
-            currentEvent.endTime = tmpEndTime
-            
-            // 设置位置信息
-            if let location = tmpLocation {
-                currentEvent.locTitle = location.name
-                currentEvent.locAddrDetail = location.title
-                currentEvent.locLongitude = location.coordinate.longitude
-                currentEvent.locLatitude = location.coordinate.latitude
+            // 日期是否发生改变
+            let newDateIndex = Utils.getDateAsFormat(date: tmpStartDate!, format: "yyyy-MM-dd")
+            let ifDateChanged = currentEvent.dateIndex! != newDateIndex
+            if ifDateChanged {
+                print("Date changed to \(newDateIndex)")
+                delegate?.deleteEvent(index: currentEventIndex, eventId: currentEvent.objectID)
+                
+                let newTask = Task(context: Utils.context)
+                newTask.dateIndex = newDateIndex
+                newTask.type = EventType.Task.rawValue
+                
+                newTask.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+                newTask.ifAllDay = ifAllDaySwitch.isOn
+                if let stDate = tmpStartDate, let stTime = tmpStartTime {
+                    newTask.startDate = stDate
+                    newTask.startTime = stTime
+                }
+                if let edDate = tmpEndDate, let edTime = tmpEndTime {
+                    newTask.endDate = edDate
+                    newTask.endTime = edTime
+                }
+                
+                if let location = tmpLocation {
+                    newTask.locTitle = location.name
+                    newTask.locAddrDetail = location.title
+                    newTask.locLongitude = location.coordinate.longitude
+                    newTask.locLatitude = location.coordinate.latitude
+                }
+                // 添加邀请信息
+                for inv in tmpInvitations {
+                    let NS_inv = Invitation(context: Utils.context)
+                    NS_inv.phoneNumber = inv.phoneNumber
+                    NS_inv.lastEditTime = Date()
+                    newTask.invitations = newTask.invitations?.adding(NS_inv) as NSSet?
+                }
+                // 备注
+                newTask.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+                newTask.colorPoint = currentEvent.colorPoint
+                //Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
+                delegate?.addEvent(e: newTask)
+                
+            }else{
+                currentEvent.dateIndex = Utils.getDateAsFormat(date: tmpStartDate!, format: "yyyy-MM-dd")
+                
+                currentEvent.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
+                currentEvent.ifAllDay = ifAllDaySwitch.isOn
+                
+                currentEvent.startDate = tmpStartDate
+                currentEvent.startTime = tmpStartTime
+                currentEvent.endDate = tmpEndDate
+                currentEvent.endTime = tmpEndTime
+                
+                // 设置位置信息
+                if let location = tmpLocation {
+                    currentEvent.locTitle = location.name
+                    currentEvent.locAddrDetail = location.title
+                    currentEvent.locLongitude = location.coordinate.longitude
+                    currentEvent.locLatitude = location.coordinate.latitude
+                }
+                // 删除当前邀请记录并重新添加
+                for inv in currentEvent.invitations! {
+                    Utils.context.delete(inv as! NSManagedObject)
+                }
+                
+                for inv in tmpInvitations{
+                    let NS_Inv = Invitation(context: Utils.context)
+                    NS_Inv.belongedTo = currentEvent
+                    NS_Inv.lastEditTime = inv.lastEditTime
+                    NS_Inv.phoneNumber = inv.phoneNumber
+                    currentEvent.invitations = currentEvent.invitations?.adding(NS_Inv) as NSSet?
+                }
+                
+                currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
+                
+                delegate?.editEvent(e: currentEvent, index: currentEventIndex, eventId: currentEvent.objectID)
             }
-            // 删除当前邀请记录并重新添加
-            for inv in currentEvent.invitations! {
-                Utils.context.delete(inv as! NSManagedObject)
-            }
             
-            for inv in tmpInvitations{
-                let NS_Inv = Invitation(context: Utils.context)
-                NS_Inv.belongedTo = currentEvent
-                NS_Inv.lastEditTime = inv.lastEditTime
-                NS_Inv.phoneNumber = inv.phoneNumber
-                currentEvent.invitations = currentEvent.invitations?.adding(NS_Inv) as NSSet?
-            }
-            
-            // currentEvent.invitations = nil          // TODO
-            currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
-            delegate?.editEvent(e: currentEvent, index: currentEventIndex, eventId: currentEvent.objectID)
         }else {
             print("No event to edit error.")
         }

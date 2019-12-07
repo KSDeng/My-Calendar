@@ -208,6 +208,9 @@ class EventProcessController: UITableViewController {
                 titleTextField.text = e.title
                 // 时间
                 setDateTimeLabels(e: e)
+                cachedST = getTimeCombined(date: e.startDate!, time: e.startTime!)
+                cachedET = getTimeCombined(date: e.endDate!, time: e.endTime!)
+                
                 // 地点
                 locationLabel.text = e.locTitle
                 locationLabel.textColor = UIColor.black
@@ -431,20 +434,19 @@ class EventProcessController: UITableViewController {
         }
         
         currentEvent = Task(context: Utils.context)
-        if let stDate = tmpStartDate, let stTime = tmpStartTime {
-            //print("Start date: \(stDate)")
-            //print("Start time: \(stTime)")
+        if let stDate = tmpStartDate, let stTime = tmpStartTime, let edDate = tmpEndDate, let edTime = tmpEndTime {
             currentEvent?.startDate = stDate
             currentEvent?.startTime = stTime
-        }
-        if let edDate = tmpEndDate, let edTime = tmpEndTime {
-            //print("End date: \(edDate)")
-            //print("End time: \(edTime)")
             currentEvent?.endDate = edDate
             currentEvent?.endTime = edTime
+            currentEvent?.nDays = ifAllDaySwitch.isOn ? 0 : Int16(numOfDaysBetween(start: stDate, end: edDate))
+            print("Number of days: \(currentEvent!.nDays)")
+        }else{
+            fatalError("Time settings inadequate!")
         }
         
         if let currentEvent = currentEvent {
+            
             currentEvent.ifAllDay = ifAllDaySwitch.isOn
             
             currentEvent.dateIndex = Utils.getDateAsFormat(date: currentEvent.startDate!, format: "yyyy-MM-dd")
@@ -523,6 +525,7 @@ class EventProcessController: UITableViewController {
         case "locationCell": self.view.endEditing(true)
         case "invitationCell": self.view.endEditing(true)
         case "startTimeCell":
+            self.view.endEditing(true)
             if (!ifShowStPicker) {
                 startDateTimePicker.datePickerMode = .date
                 startDateTimePicker.locale = Locale(identifier: "zh")
@@ -539,7 +542,7 @@ class EventProcessController: UITableViewController {
             startDateTimePicker.date = tmpSD
             startDateTimePicker.isHidden = !ifShowStPicker
         case "endTimeCell":
-            
+            self.view.endEditing(true)
             if (!ifShowEdPicker) {
                 endDateTimePicker.datePickerMode = .date
                 endDateTimePicker.locale = Locale(identifier: "zh")
@@ -688,12 +691,16 @@ class EventProcessController: UITableViewController {
             // 日期是否发生改变
             let newDateIndex = Utils.getDateAsFormat(date: tmpStartDate!, format: "yyyy-MM-dd")
             let ifDateChanged = currentEvent.dateIndex! != newDateIndex
-            if ifDateChanged {
-                print("Date changed to \(newDateIndex)")
+            let nDays = ifAllDaySwitch.isOn ? 0 : numOfDaysBetween(start: tmpStartDate!, end: tmpEndDate!)
+            let ifNumDaysChanged = currentEvent.nDays != Int16(nDays)
+            
+            if (ifDateChanged || ifNumDaysChanged){
+                // print("Date changed to \(newDateIndex)")
                 delegate?.deleteEvent(index: currentEventIndex, eventId: currentEvent.objectID)
                 
                 let newTask = Task(context: Utils.context)
                 newTask.dateIndex = newDateIndex
+                newTask.nDays = Int16(nDays)
                 newTask.type = EventType.Task.rawValue
                 
                 newTask.title = titleTextField.text!.isEmpty ? "(无主题)" : titleTextField.text!
@@ -785,6 +792,12 @@ class EventProcessController: UITableViewController {
         return T
     }
     
+    // 两个日期之间的天数
+    // https://iostutorialjunction.com/2019/09/get-number-of-days-between-two-dates-swift.html
+    private func numOfDaysBetween(start: Date, end: Date) -> Int {
+        return Calendar.current.dateComponents([.day], from: start, to: end).day!
+    }
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
@@ -821,9 +834,6 @@ class EventProcessController: UITableViewController {
             if !tmpInvitations.isEmpty {
                 dest.currentInvitations = tmpInvitations
                 // dest.invitationTable?.invitations = tmpInvitations
-            }
-            if status == .Show {
-                
             }
         }
     }

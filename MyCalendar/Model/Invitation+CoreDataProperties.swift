@@ -2,7 +2,7 @@
 //  Invitation+CoreDataProperties.swift
 //  MyCalendar
 //
-//  Created by DKS_mac on 2019/12/6.
+//  Created by DKS_mac on 2019/12/7.
 //  Copyright © 2019 dks. All rights reserved.
 //
 //
@@ -17,9 +17,9 @@ extension Invitation {
         return NSFetchRequest<Invitation>(entityName: "Invitation")
     }
 
+    @NSManaged public var lastEditTime: Date?
     @NSManaged public var name: String?
     @NSManaged public var phoneNumber: String?
-    @NSManaged public var lastEditTime: Date?
     @NSManaged public var belongedTo: Task?
 
 }

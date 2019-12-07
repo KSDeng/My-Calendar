@@ -117,10 +117,14 @@ class CalendarViewController: UITableViewController {
         if ifFirstTime{
             loadData()
             for e in tasks {
-                if taskCount.keys.contains(e.dateIndex!){
-                    taskCount[e.dateIndex!]! += 1
-                }else{
-                    taskCount[e.dateIndex!] = 1
+                for i in 0...Int(e.nDays) {
+                    let getDate = Date(timeInterval: Double(i*24*60*60), since: e.startDate!)
+                    let getDateIndex = Utils.getDateAsFormat(date: getDate, format: dateIndexFormat)
+                    if taskCount.keys.contains(getDateIndex){
+                        taskCount[getDateIndex]! += 1
+                    }else{
+                        taskCount[getDateIndex] = 1
+                    }
                 }
             }
             ifFirstTime = false
@@ -242,24 +246,31 @@ class CalendarViewController: UITableViewController {
     private func doAddEvent(e: Task){
         tasks.append(e)
         //print(e)
-        if taskCount.keys.contains(e.dateIndex!){
-            taskCount[e.dateIndex!]! += 1
-        }else{
-            taskCount[e.dateIndex!] = 1
+        for i in 0...Int(e.nDays) {
+            let getDate = Date(timeInterval: Double(i*24*60*60), since: e.startDate!)
+            let getDateIndex = Utils.getDateAsFormat(date: getDate, format: dateIndexFormat)
+            if taskCount.keys.contains(getDateIndex){
+                taskCount[getDateIndex]! += 1
+            }else{
+                taskCount[getDateIndex] = 1
+            }
         }
+        
         if EventType(rawValue: e.type!)! == .Task{
             tasks.sort(by: {$0.startTime! < $1.startTime!})
         }
-        
         tableView.reloadData()
     }
-    
 
     
     private func doDeleteEvent(eventIndex: Int, eventId: NSManagedObjectID){
-        let dateIndex = tasks[eventIndex].dateIndex!
-        //heights[dateIndex]! -= (evHeight + 2)
-        taskCount[dateIndex]! -= 1
+        let task = tasks[eventIndex]
+        for i in 0...Int(task.nDays){
+            let getDate = Date(timeInterval: Double(i*24*60*60), since: task.startDate!)
+            let getDateIndex = Utils.getDateAsFormat(date: getDate, format: dateIndexFormat)
+            taskCount[getDateIndex]! -= 1
+        }
+        
         
         let dEvent = tasks.remove(at: eventIndex)
         Utils.context.delete(dEvent)
@@ -329,6 +340,111 @@ class CalendarViewController: UITableViewController {
         for task in tasks {
             print(task)
         }
+    }
+    
+    private func generateTaskView(task: Task) -> [TaskView] {
+        
+        var views:[TaskView] = []
+        
+        if task.ifAllDay {
+            // 全天任务
+            views = [getOneView(task: task)]
+            
+        }else{
+            let daysCount = Int(task.nDays)
+            if daysCount == 0 {
+                // 单天任务
+                let taskView = getOneView(task: task)
+                // 时间标签
+                let timeLabel = UILabel(frame: CGRect(x: view.frame.maxX - 150, y: taskView.frame.minY + 7, width: 150, height: evHeight * 0.6))
+                
+                let startTime = Utils.getDateAsFormat(date: task.startTime!, format: "HH:mm")
+                let endTime = Utils.getDateAsFormat(date: task.endTime!, format: "HH:mm")
+                
+                timeLabel.text = "\(startTime) ~ \(endTime)"
+                timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+                
+                taskView.addSubview(timeLabel)
+                views.append(taskView)
+                
+            }else {
+                // 多天任务
+                
+                for i in 0...daysCount {
+                    let taskView = getOneView(task: task)
+                    
+                    taskView.dateIndex = Utils.getDateAsFormat(date: Date(timeInterval: Double(i*24*60*60), since: task.startDate!), format: dateIndexFormat)
+                    // 进度标签
+                    let processLabel = UILabel(frame: CGRect(x: view.frame.maxX - 250, y: taskView.frame.minY + 7, width: 120, height: evHeight * 0.6))
+                    processLabel.text = "(第\(i + 1)天/共\(daysCount + 1)天)"
+                    processLabel.textColor = UIColor.white
+                    processLabel.adjustsFontSizeToFitWidth = true
+                    processLabel.baselineAdjustment = .alignCenters
+                    taskView.addSubview(processLabel)
+                    
+                    if i == 0 {         // 第一天
+                        
+                        let startTimeLabel = UILabel(frame: CGRect(x: view.frame.maxX - 120, y: taskView.frame.minY + 7, width: 150, height: evHeight * 0.6))
+                        
+                        startTimeLabel.text = "\(Utils.getDateAsFormat(date: task.startTime!, format: "HH:mm"))开始"
+                        startTimeLabel.textColor = UIColor.white
+                        
+                        taskView.addSubview(startTimeLabel)
+                        
+                    }else if i == daysCount {       // 最后一天
+                        let endTimeLabel = UILabel(frame: CGRect(x: view.frame.maxX - 120, y: taskView.frame.minY + 7, width: 150, height: evHeight * 0.6))
+                        
+                        endTimeLabel.text = "直到\(Utils.getDateAsFormat(date: task.endTime!, format: "HH:mm"))"
+                        endTimeLabel.textColor = UIColor.white
+                        
+                        taskView.addSubview(endTimeLabel)
+                    }
+                    
+                    views.append(taskView)
+                }
+            }
+        }
+        
+        return views
+    }
+    
+    // 所有事件的View共有部分
+    private func getOneView(task: Task) -> TaskView {
+        let taskView = TaskView()
+        taskView.dateIndex = task.dateIndex
+        taskView.eventIndex = tasks.firstIndex(of: task)
+        taskView.event = task
+        
+        // 根据事件类型设置不同的颜色
+        switch EventType(rawValue: task.type!) {
+        case .Task:
+            taskView.backgroundColor = Utils.eventColorArray[Int(task.colorPoint)]
+        case .Holiday:
+            taskView.backgroundColor = Utils.holidayColor
+        case .Adjust:
+            taskView.backgroundColor = Utils.adjustDayColor
+        default:
+            print("Event type error while redering!")
+        }
+        
+        // 标题标签
+        let titleLabel = UILabel(frame: CGRect(x: taskView.bounds.minX + 16, y: taskView.bounds.minY + 7, width: 200, height: evHeight * 0.6))
+        titleLabel.text = task.title
+        titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+        titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
+        
+        // 避免字体自适应后的位置偏移
+        // https://stackoverflow.com/questions/26649909/text-not-vertically-centered-in-uilabel
+        titleLabel.baselineAdjustment = .alignCenters
+        taskView.addSubview(titleLabel)
+        
+        // 任务添加点击事件
+        if EventType(rawValue: task.type!) == .Task{
+            let gesture = UITapGestureRecognizer(target: self, action: #selector(taskViewTapped))
+            taskView.addGestureRecognizer(gesture)
+        }
+        
+        return taskView
     }
     
 
@@ -401,61 +517,20 @@ class CalendarViewController: UITableViewController {
         
         // 显示该天对应的任务
         // 添加的事件其实也会被重用(duplicated)，看不到是因为高度的原因被隐藏了
-        for event in tasks{
-            if event.dateIndex! == day.0 {
-                
-                let evWidth = cell.bounds.width - 32
-                let evX = cell.bounds.minX + 16
-                var evY = cell.bounds.minY + rowHeight + 2
-                evY += (CGFloat(eventCount) * (evHeight + 2))
-                eventCount += 1
-                
-                let taskView = TaskView.init(frame: CGRect(x: evX, y: evY, width: evWidth, height: evHeight))
-                
-                taskView.dateIndex = day.0
-                taskView.eventIndex = tasks.firstIndex(of: event)!
-                taskView.event = event
-                // 根据事件类型设置不同的颜色
-                switch EventType(rawValue: event.type!) {
-                case .Task:
-                    taskView.backgroundColor = Utils.eventColorArray[Int(event.colorPoint)]
-                case .Holiday:
-                    taskView.backgroundColor = Utils.holidayColor
-                case .Adjust:
-                    taskView.backgroundColor = Utils.adjustDayColor
-                default:
-                    print("Event type error while redering!")
-                }
-                
-                let titleLabel = UILabel(frame: CGRect(x: taskView.bounds.minX + 16, y: taskView.bounds.minY + 7, width: 200, height: taskView.bounds.height * 0.6))
-                titleLabel.text = event.title
-                titleLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
-                titleLabel.adjustsFontSizeToFitWidth = true             // 字体自动适应宽度
-                
-                // 避免字体自适应后的位置偏移
-                // https://stackoverflow.com/questions/26649909/text-not-vertically-centered-in-uilabel
-                titleLabel.baselineAdjustment = .alignCenters
-                taskView.addSubview(titleLabel)
-                
-                // 非全天任务添加时间标签
-                if !event.ifAllDay {
-                    let timeLabel = UILabel(frame: CGRect(x: taskView.bounds.maxX - 120, y: taskView.bounds.minY + 7, width: 150, height: taskView.bounds.height * 0.6))
+        for task in tasks{
+            let taskViews = generateTaskView(task: task)
+            for taskView in taskViews {
+                if taskView.dateIndex! == day.0 {
+                    let evWidth = cell.bounds.width - 32
+                    let evX = cell.bounds.minX + 16
+                    var evY = cell.bounds.minY + rowHeight + 2
+                    evY += (CGFloat(eventCount) * (evHeight + 2))
+                    eventCount += 1
                     
-                    let startTime = Utils.getDateAsFormat(date: event.startTime!, format: "HH:mm")
-                    let endTime = Utils.getDateAsFormat(date: event.endTime!, format: "HH:mm")
-                    
-                    timeLabel.text = "\(startTime) ~ \(endTime)"
-                    timeLabel.textColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
-                    taskView.addSubview(timeLabel)
-                }
-                
-                // 任务添加点击事件
-                if EventType(rawValue: event.type!) == .Task{
-                    let gesture = UITapGestureRecognizer(target: self, action: #selector(taskViewTapped))
-                    taskView.addGestureRecognizer(gesture)
+                    taskView.frame = CGRect(x: evX, y: evY, width: evWidth, height: evHeight)
+                    cell.addSubview(taskView)
                     
                 }
-                cell.addSubview(taskView)
             }
         }
         

@@ -2,7 +2,7 @@
 //  Task+CoreDataProperties.swift
 //  MyCalendar
 //
-//  Created by DKS_mac on 2019/12/6.
+//  Created by DKS_mac on 2019/12/7.
 //  Copyright © 2019 dks. All rights reserved.
 //
 //
@@ -32,6 +32,7 @@ extension Task {
     @NSManaged public var startTime: Date?
     @NSManaged public var title: String?
     @NSManaged public var type: String?
+    @NSManaged public var nDays: Int16
     @NSManaged public var invitations: NSSet?
 
 }

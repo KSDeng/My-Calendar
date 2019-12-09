@@ -24,6 +24,11 @@
 		0AB14DB923992C0900D3581F /* InvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DB823992C0900D3581F /* InvitationCell.swift */; };
 		0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */; };
 		0ABAD6C52394F597005AE563 /* LocationSearchResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABAD6C42394F597005AE563 /* LocationSearchResultViewController.swift */; };
+		0ABD222C239E10F600C50747 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABD222B239E10F600C50747 /* Notification.swift */; };
+		0ABD222F239E121000C50747 /* Notification+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABD222D239E121000C50747 /* Notification+CoreDataClass.swift */; };
+		0ABD2230239E121000C50747 /* Notification+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABD222E239E121000C50747 /* Notification+CoreDataProperties.swift */; };
+		0ABD2232239E282900C50747 /* CachedNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABD2231239E282900C50747 /* CachedNotification.swift */; };
+		0ABD2234239E38BB00C50747 /* CustomizeNotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABD2233239E38BB00C50747 /* CustomizeNotificationController.swift */; };
 		0AD9AA58239A8D6500D3F0CE /* Invitation+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD9AA54239A8D6500D3F0CE /* Invitation+CoreDataClass.swift */; };
 		0AD9AA59239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD9AA55239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift */; };
 		0AD9AA5A239A8D6500D3F0CE /* Task+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AD9AA56239A8D6500D3F0CE /* Task+CoreDataClass.swift */; };
@@ -52,6 +57,11 @@
 		0AB14DB823992C0900D3581F /* InvitationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationCell.swift; sourceTree = "<group>"; };
 		0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationTableViewController.swift; sourceTree = "<group>"; };
 		0ABAD6C42394F597005AE563 /* LocationSearchResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchResultViewController.swift; sourceTree = "<group>"; };
+		0ABD222B239E10F600C50747 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		0ABD222D239E121000C50747 /* Notification+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+CoreDataClass.swift"; sourceTree = "<group>"; };
+		0ABD222E239E121000C50747 /* Notification+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		0ABD2231239E282900C50747 /* CachedNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedNotification.swift; sourceTree = "<group>"; };
+		0ABD2233239E38BB00C50747 /* CustomizeNotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizeNotificationController.swift; sourceTree = "<group>"; };
 		0AD9AA54239A8D6500D3F0CE /* Invitation+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Invitation+CoreDataClass.swift"; sourceTree = "<group>"; };
 		0AD9AA55239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Invitation+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		0AD9AA56239A8D6500D3F0CE /* Task+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -118,6 +128,7 @@
 				0ABAD6C42394F597005AE563 /* LocationSearchResultViewController.swift */,
 				0AB14DB62399276D00D3581F /* InvitationViewController.swift */,
 				0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */,
+				0ABD2233239E38BB00C50747 /* CustomizeNotificationController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -125,6 +136,8 @@
 		0A9077CA238BA1F000FFF1EE /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				0ABD222D239E121000C50747 /* Notification+CoreDataClass.swift */,
+				0ABD222E239E121000C50747 /* Notification+CoreDataProperties.swift */,
 				0AD9AA54239A8D6500D3F0CE /* Invitation+CoreDataClass.swift */,
 				0AD9AA55239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift */,
 				0AD9AA56239A8D6500D3F0CE /* Task+CoreDataClass.swift */,
@@ -134,6 +147,8 @@
 				0A64EB9E2393A18C00166D41 /* SpecialDay.swift */,
 				0AB14DB823992C0900D3581F /* InvitationCell.swift */,
 				0AD9AA5C239A8DF000D3F0CE /* CachedInvitation.swift */,
+				0ABD222B239E10F600C50747 /* Notification.swift */,
+				0ABD2231239E282900C50747 /* CachedNotification.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -276,19 +291,24 @@
 				0AD9AA5A239A8D6500D3F0CE /* Task+CoreDataClass.swift in Sources */,
 				0ABAD6C52394F597005AE563 /* LocationSearchResultViewController.swift in Sources */,
 				0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */,
+				0ABD222F239E121000C50747 /* Notification+CoreDataClass.swift in Sources */,
 				0AD9AA5B239A8D6500D3F0CE /* Task+CoreDataProperties.swift in Sources */,
 				0AB14DB923992C0900D3581F /* InvitationCell.swift in Sources */,
+				0ABD2230239E121000C50747 /* Notification+CoreDataProperties.swift in Sources */,
 				0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */,
 				0A14D0FD2394B63600A8DB1F /* MapViewController.swift in Sources */,
 				0A09C3372392507600871FD6 /* Utils.swift in Sources */,
 				0AD9AA58239A8D6500D3F0CE /* Invitation+CoreDataClass.swift in Sources */,
+				0ABD2232239E282900C50747 /* CachedNotification.swift in Sources */,
 				0A64EB9F2393A18C00166D41 /* SpecialDay.swift in Sources */,
 				0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */,
 				0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */,
 				0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */,
 				0AB14DB72399276D00D3581F /* InvitationViewController.swift in Sources */,
+				0ABD222C239E10F600C50747 /* Notification.swift in Sources */,
 				0A16E4652390DFE1003685C1 /* TaskView.swift in Sources */,
 				0AD9AA59239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift in Sources */,
+				0ABD2234239E38BB00C50747 /* CustomizeNotificationController.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

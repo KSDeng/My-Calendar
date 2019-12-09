@@ -2,7 +2,7 @@
 //  Invitation+CoreDataProperties.swift
 //  MyCalendar
 //
-//  Created by DKS_mac on 2019/12/7.
+//  Created by DKS_mac on 2019/12/9.
 //  Copyright © 2019 dks. All rights reserved.
 //
 //

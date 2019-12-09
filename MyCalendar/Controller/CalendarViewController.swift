@@ -15,14 +15,10 @@
 
 // MARK: TODOs
 // 用户登录和验证
-// 发送notification
-// 一件事跨越多天
-// 联系人输入邮箱，发邮件邀请
 // 只有列表视图翻起来不方便，最好再加上日历视图
-// 添加事务时不合理弹出Alert
-// 事务开始前提醒
 // 无事务且无节假日的日期可以缩略显示
 // 顶部的title展示目前所在的时间范围
+// 赛事爬虫！
 
 import UIKit
 import Foundation
@@ -334,6 +330,48 @@ class CalendarViewController: UITableViewController {
         }
     }
     
+    // MARK: - objc functions
+    // 点击事件视图
+    @objc func taskViewTapped(sender: UITapGestureRecognizer){
+        // print("Event view tapped!")
+        let getView = sender.view as! TaskView
+        // 从storyboard加载View Controller
+        // https://coderwall.com/p/cjuzng/swift-instantiate-a-view-controller-using-its-storyboard-name-in-xcode
+        let detailController: EventProcessController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! EventProcessController
+        // 传递数据
+        detailController.currentEvent = getView.task!
+        //print("Current event loc title:\(detailController.currentEvent!.locTitle)")
+        detailController.currentEventIndex = getView.taskIndex!
+        // print("Get view event id: \(getView.event!.id)")
+        
+        detailController.tmpStartDate = getView.task!.startDate
+        detailController.tmpStartTime = getView.task!.startTime
+        detailController.tmpEndDate = getView.task!.endDate
+        detailController.tmpEndTime = getView.task!.endTime
+        
+        if let noti = getView.task!.notification {
+            print("Set tmpNotification")
+            detailController.tmpNotification = CachedNotification(id: noti.id!, title: noti.title!, body: noti.body!, datetime: noti.datetime!, range: noti.range!, number: Int(noti.number))
+            
+        }
+        
+        // 设置邀请列表
+        // https://stackoverflow.com/questions/36954095/iterate-nsset-and-cast-to-type-in-one-step
+        for case let inv as Invitation in getView.task!.invitations! {
+            let cachedInv = CachedInvitation(phoneNumber: inv.phoneNumber!, editTime: inv.lastEditTime!)
+            detailController.tmpInvitations.append(cachedInv)
+        }
+        // 按上次编辑时间排序
+        detailController.tmpInvitations.sort(by: {$0.lastEditTime < $1.lastEditTime})
+        
+        detailController.status = .Show          // 仅展示
+        
+        detailController.delegate = self
+        navigationItem.backBarButtonItem?.title = "返回"
+        
+        show(detailController, sender: self)
+    }
+    
     // MARK: - Private utils
     private func showTasks(){
         print("Show tasks:")
@@ -412,8 +450,8 @@ class CalendarViewController: UITableViewController {
     private func getOneView(task: Task) -> TaskView {
         let taskView = TaskView()
         taskView.dateIndex = task.dateIndex
-        taskView.eventIndex = tasks.firstIndex(of: task)
-        taskView.event = task
+        taskView.taskIndex = tasks.firstIndex(of: task)
+        taskView.task = task
         
         // 根据事件类型设置不同的颜色
         switch EventType(rawValue: task.type!) {
@@ -537,42 +575,6 @@ class CalendarViewController: UITableViewController {
         return cell
     }
     
-    
-    // 点击事件视图
-    @objc func taskViewTapped(sender: UITapGestureRecognizer){
-        // print("Event view tapped!")
-        let getView = sender.view as! TaskView
-        // 从storyboard加载View Controller
-        // https://coderwall.com/p/cjuzng/swift-instantiate-a-view-controller-using-its-storyboard-name-in-xcode
-        let detailController: EventProcessController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "AddEventController") as! EventProcessController
-        // 传递数据
-        detailController.currentEvent = getView.event!
-        //print("Current event loc title:\(detailController.currentEvent!.locTitle)")
-        detailController.currentEventIndex = getView.eventIndex!
-        // print("Get view event id: \(getView.event!.id)")
-        
-        detailController.tmpStartDate = getView.event!.startDate
-        detailController.tmpStartTime = getView.event!.startTime
-        detailController.tmpEndDate = getView.event!.endDate
-        detailController.tmpEndTime = getView.event!.endTime
-        
-        // 设置邀请列表
-        // https://stackoverflow.com/questions/36954095/iterate-nsset-and-cast-to-type-in-one-step
-        for case let inv as Invitation in getView.event!.invitations! {
-            let cachedInv = CachedInvitation(phoneNumber: inv.phoneNumber!, editTime: inv.lastEditTime!)
-            detailController.tmpInvitations.append(cachedInv)
-        }
-        // 按上次编辑时间排序
-        detailController.tmpInvitations.sort(by: {$0.lastEditTime < $1.lastEditTime})
-        
-        detailController.status = .Show          // 仅展示
-        
-        detailController.delegate = self
-        navigationItem.backBarButtonItem?.title = "返回"
-        
-        show(detailController, sender: self)
-    }
-    
     // 设置每个cell的高度
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
@@ -582,8 +584,8 @@ class CalendarViewController: UITableViewController {
         // 以下方法会造成较大的延迟
         /*
         var res = rowHeight
-        for event in events {
-            if event.dateIndex! == days[indexPath.row].0 {
+        for task in events {
+            if task.dateIndex! == days[indexPath.row].0 {
                 res += (evHeight + 2)
             }
         }

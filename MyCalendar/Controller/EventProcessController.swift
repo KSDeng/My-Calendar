@@ -16,6 +16,12 @@ import UIKit
 import CoreData
 import MapKit
 
+// MARK: -Enums
+// 当前通知设置的种类
+enum notificationSettingEnum: String {
+    case None, TenMinutes, HalfAnHour, AnHour, Custom
+}
+
 // MARK: - Protocols
 protocol EventProcessDelegate {
     func addEvent(e: Task)
@@ -48,11 +54,26 @@ class EventProcessController: UITableViewController {
     
     @IBOutlet weak var noteTextField: UITextField!
     
+    
+    @IBOutlet weak var notificationCurrentSettingLabel: UILabel!
+    
+    @IBOutlet weak var notificationNoneButton: UIButton!
+    
+    @IBOutlet weak var notificationTenMinutesButton: UIButton!
+    
+    @IBOutlet weak var notificationHalfAnHourButton: UIButton!
+    
+    @IBOutlet weak var notificationOneHourButton: UIButton!
+    
+    @IBOutlet weak var notificationCustomButton: UIButton!
+    
     // MARK: - Constants
-    // 每个section的行数
-    let numberOfRows = [1,3,1,1,1]
+    // 本地通知管理器
+    let notificationManager = LocalNotificationManager()
     
     // MARK: - Variables
+    // 每个section的行数
+    var numberOfRows = [1,3,1,1,1,1]
     
     // 当前事件
     var currentEvent: Task?
@@ -108,22 +129,43 @@ class EventProcessController: UITableViewController {
     // var tmpInvitations: [String] = []
     var tmpInvitations: [CachedInvitation] = []
     
+    // 是否展示更多通知选项
+    var ifShowCustomNotificationSettings = false {
+        willSet {
+            notificationNoneButton.isHidden = !newValue
+            notificationTenMinutesButton.isHidden = !newValue
+            notificationHalfAnHourButton.isHidden = !newValue
+            notificationOneHourButton.isHidden = !newValue
+            notificationCustomButton.isHidden = !newValue
+        }
+    }
+    
+    // 缓存当前通知
+    var tmpNotification: CachedNotification?
+    var tmpNotiRange: String?
+    var tmpNotiNumber: Int?
+    
+    // 缓存的当前通知设置状态
+    var notificationSettingStatus = notificationSettingEnum.HalfAnHour
+    // 自定义notification通知时间秒数记录
+    var customNotificationSecondsFromNow: Int?
     
     // MARK: - Setups
     private func setVisibleContent(){
         
+        ifShowCustomNotificationSettings = false
         // 邀请
         if !tmpInvitations.isEmpty {
             invitationLabel.text = "已邀请\(tmpInvitations.count)位"
             invitationLabel.textColor = UIColor.black
         } else {
             invitationLabel.text = "添加邀请对象"
-            
         }
+        
+        
         
         switch status {
         case .Add:
-            // ifAllDaySwitch.isOn = false
             
             let now = Date()
             let nextHour = Date.init(timeInterval: 60*60, since: Date())
@@ -189,7 +231,7 @@ class EventProcessController: UITableViewController {
                 // 备注
                 noteTextField.text = e.note
             }else{
-                print("Current event is nil!")
+                print("Current task is nil!")
             }
         case .Show:
             if let e = currentEvent {
@@ -230,6 +272,10 @@ class EventProcessController: UITableViewController {
                     invitationLabel.text = "暂无邀请对象"
                     invitationLabel.textColor = UIColor.lightGray
                 }
+                // 通知
+                if let noti = tmpNotification {
+                    notificationCurrentSettingLabel.text = "提前\(noti.number)\(noti.range)通知"
+                }
                 
                 // 备注
                 noteTextField.text = e.note
@@ -244,7 +290,7 @@ class EventProcessController: UITableViewController {
                 
                 navigationItem.rightBarButtonItems = [deleteButton, editButton]
             }else {
-                print("Current event is nil!")
+                print("Current task is nil!")
             }
         default:
             print("Status default.")
@@ -445,6 +491,7 @@ class EventProcessController: UITableViewController {
             fatalError("Time settings inadequate!")
         }
         
+        
         if let currentEvent = currentEvent {
             
             currentEvent.ifAllDay = ifAllDaySwitch.isOn
@@ -470,15 +517,32 @@ class EventProcessController: UITableViewController {
                 NS_inv.lastEditTime = Date()
                 currentEvent.invitations = currentEvent.invitations?.adding(NS_inv) as NSSet?
             }
+            
             // 备注
             currentEvent.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
             currentEvent.colorPoint = Int16(Utils.currentColorPoint)
             Utils.currentColorPoint = (Utils.currentColorPoint + 1) % Utils.eventColorArray.count
             
+            // 设置通知
+            
+            if notificationSettingStatus != .None {
+                print("Notification setting status: \(notificationSettingStatus)")
+                let notification = generateNotification(task: currentEvent)
+                notificationManager.addNotification(notification: notification!)
+                let notiPersist = Notification(context: Utils.context)      // 持久化
+                notiPersist.id = notification!.id
+                notiPersist.title = notification!.title
+                notiPersist.body = notification!.body
+                notiPersist.datetime = notification!.datetime
+                notiPersist.range = notification!.range
+                notiPersist.number = Int16(notification!.number)
+                currentEvent.notification = notiPersist
+            }
+            
             // print("ColorPoint: \(colorPoint)")
             delegate?.addEvent(e: currentEvent)
         }else{
-            print("No event to add error.")
+            print("No task to add error.")
         }
         
         navigationController?.popViewController(animated: true)
@@ -486,11 +550,46 @@ class EventProcessController: UITableViewController {
     }
     
     
+    @IBAction func notificationNoneButtonClicked(_ sender: UIButton) {
+        notificationSettingStatus = .None
+        ifShowCustomNotificationSettings = false
+        notificationCurrentSettingLabel.text = "无"
+        
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    @IBAction func notificationTenMinutesButtonClicked(_ sender: UIButton) {
+        notificationSettingStatus = .TenMinutes
+        ifShowCustomNotificationSettings = false
+        notificationCurrentSettingLabel.text = "提前10分钟通知"
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    
+    @IBAction func notificationHalfAnHourButtonClicked(_ sender: UIButton) {
+        notificationSettingStatus = .HalfAnHour
+        ifShowCustomNotificationSettings = false
+        notificationCurrentSettingLabel.text = "提前30分钟通知"
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    @IBAction func notificationOneHourButtonClicked(_ sender: UIButton) {
+        notificationSettingStatus = .AnHour
+        ifShowCustomNotificationSettings = false
+        notificationCurrentSettingLabel.text = "提前1小时通知"
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
+    
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 5
+        return 6
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -558,6 +657,10 @@ class EventProcessController: UITableViewController {
             }
             endDateTimePicker.date = tmpED
             endDateTimePicker.isHidden = !ifShowEdPicker
+        case "notificationCell":
+            self.view.endEditing(true)
+            ifShowCustomNotificationSettings = !ifShowCustomNotificationSettings
+            
         default:
             print("Clicked cell not handled.")
         }
@@ -582,12 +685,12 @@ class EventProcessController: UITableViewController {
                 }
             }
         }
-        // 邀请对象栏
-        /*
-        if indexPath.section == 3 {
-            res += (44 * CGFloat(tmpInvitations.count))
+        // 通知设置栏
+        if indexPath.section == 4 {
+            if ifShowCustomNotificationSettings {
+                res = 220
+            }
         }
-        */
         
         return res
     }
@@ -644,6 +747,12 @@ class EventProcessController: UITableViewController {
     }
     
     @objc func deleteButtonClicked(){
+        if currentEvent?.notification != nil {
+            let id = currentEvent?.notification?.id!
+            print("Delete notification with ID = \(id!.uuidString)")
+            notificationManager.deleteNotification(id: id!)
+        }
+        
         delegate?.deleteEvent(index: currentEventIndex, eventId: currentEvent!.objectID)
         navigationController?.popViewController(animated: true)
     }
@@ -680,6 +789,24 @@ class EventProcessController: UITableViewController {
     }
     
     @objc func confirmEditButtonClicked(){
+        // 删除原有通知
+        if currentEvent?.notification != nil {
+            Utils.context.delete((currentEvent?.notification!)!)
+        }
+        // 重新加入通知
+        if notificationSettingStatus != .None {
+            let notification = generateNotification(task: currentEvent!)
+            notificationManager.addNotification(notification: notification!)
+            let notiPersist = Notification(context: Utils.context)      // 持久化
+            notiPersist.id = notification!.id
+            notiPersist.title = notification!.title
+            notiPersist.body = notification!.body
+            notiPersist.datetime = notification!.datetime
+            notiPersist.range = notification!.range
+            notiPersist.number = Int16(notification!.number)
+            currentEvent!.notification = notiPersist
+        }
+        
         if !ifTimeSettingValid {
             let alert = UIAlertController(title: "时间设置错误", message: "开始时间不能晚于结束时间!", preferredStyle: .actionSheet)
             alert.addAction(UIAlertAction(title: "好", style: .default, handler: nil))
@@ -727,6 +854,9 @@ class EventProcessController: UITableViewController {
                     NS_inv.lastEditTime = Date()
                     newTask.invitations = newTask.invitations?.adding(NS_inv) as NSSet?
                 }
+                
+                
+                
                 // 备注
                 newTask.note = noteTextField.text!.isEmpty ? "(未添加备注)" : noteTextField.text!
                 newTask.colorPoint = currentEvent.colorPoint
@@ -770,7 +900,7 @@ class EventProcessController: UITableViewController {
             }
             
         }else {
-            print("No event to edit error.")
+            print("No task to edit error.")
         }
         
         navigationController?.popViewController(animated: true)
@@ -796,6 +926,63 @@ class EventProcessController: UITableViewController {
     // https://iostutorialjunction.com/2019/09/get-number-of-days-between-two-dates-swift.html
     private func numOfDaysBetween(start: Date, end: Date) -> Int {
         return Calendar.current.dateComponents([.day], from: start, to: end).day!
+    }
+    
+    // 生成一个通知
+    private func generateNotification(task: Task) -> CachedNotification? {
+        guard let stDate = task.startDate, let stTime = task.startTime else {
+            fatalError("Task start time invalid!")
+        }
+        let taskStartTime = getTimeCombined(date: stDate, time: stTime)
+        let id = UUID()
+        let title = task.title ?? "(无主题)"
+        var datetime = Date()
+        var body = ""
+        var range = ""
+        var number = 0
+        
+        switch notificationSettingStatus {
+        case .TenMinutes:
+            datetime = Date(timeInterval: -10*60, since: taskStartTime)
+            range = "分钟"
+            number = 10
+        case .HalfAnHour:
+            datetime = Date(timeInterval: -30*60, since: taskStartTime)
+            range = "分钟"
+            number = 30
+        case .AnHour:
+            datetime = Date(timeInterval: -60*60, since: taskStartTime)
+            range = "小时"
+            number = 1
+        case .Custom:
+            guard let seconds = customNotificationSecondsFromNow else {
+                fatalError("Set custom notification but customNotificationSecondsFromNow is nil!")
+            }
+            datetime = Date(timeInterval: Double(-seconds), since: taskStartTime)
+        default:
+            print("Current notification setting not handled.")
+        }
+        
+        if let loc = task.locTitle {
+            body = "⏰ \(Utils.getDateAsFormat(date: taskStartTime, format: "HH:mm"))\n 地点: \(loc)"
+        }else{
+            body = "⏰ \(Utils.getDateAsFormat(date: taskStartTime, format: "HH:mm"))"
+        }
+        
+        var noti: CachedNotification? = nil
+        
+        if notificationSettingStatus != .None {
+            if notificationSettingStatus != .Custom {
+                noti = CachedNotification(id: id, title: title, body: body, datetime: datetime, range: range, number: number)
+            } else {
+                guard let tr = tmpNotiRange, let tn = tmpNotiNumber else {
+                    fatalError("tmpNotiRange or tmpNotiNumber not set!")
+                }
+                noti = CachedNotification(id: id, title: title, body: body, datetime: datetime, range: tr, number: tn)
+            }
+        }
+        
+        return noti
     }
     
     // MARK: - Navigation
@@ -835,6 +1022,11 @@ class EventProcessController: UITableViewController {
                 dest.currentInvitations = tmpInvitations
                 // dest.invitationTable?.invitations = tmpInvitations
             }
+        } else if segue.identifier == "customizeNotificationSegue" {
+            // 自定义通知设置
+            notificationSettingStatus = .Custom
+            let dest = (segue.destination) as! CustomizeNotificationController
+            dest.delegate = self
         }
     }
     
@@ -885,4 +1077,15 @@ extension EventProcessController: DeleteInvitationSecondDelegate {
         print("Delete invitation \(inv.phoneNumber) in event process controller.")
         tmpInvitations.remove(at: index)
     }
+}
+
+// 自定义notification
+extension EventProcessController: CustomNotificationDelegate {
+    func setNotificationPara(secondsFromNow: Int, sentence: String, range: String, number: Int) {
+        self.customNotificationSecondsFromNow = secondsFromNow
+        notificationCurrentSettingLabel.text = sentence
+        tmpNotiRange = range
+        tmpNotiNumber = number
+    }
+    
 }

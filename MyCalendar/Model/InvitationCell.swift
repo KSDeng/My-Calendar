@@ -12,7 +12,6 @@ import UIKit
 // 称呼和电话号码分开
 
 class InvitationCell: UITableViewCell {
-
     
     @IBOutlet weak var personImage: UIImageView!
     

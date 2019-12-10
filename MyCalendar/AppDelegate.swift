@@ -9,6 +9,7 @@
 import UIKit
 import CoreData
 import UserNotifications
+import Firebase
 
 // References:
 // https://medium.com/@shawnbierman/how-to-add-core-data-to-an-existing-xcode-8-and-swift-3-project-508781b3e1c4
@@ -20,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UNUserNotificationCenter.current().delegate = self
         
+        FirebaseApp.configure()
         return true
     }
 

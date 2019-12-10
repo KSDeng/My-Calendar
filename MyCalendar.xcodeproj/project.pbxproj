@@ -15,6 +15,7 @@
 		0A419C032378EF9400CB415D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C012378EF9400CB415D /* Main.storyboard */; };
 		0A419C052378EF9500CB415D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C042378EF9500CB415D /* Assets.xcassets */; };
 		0A419C082378EF9500CB415D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A419C062378EF9500CB415D /* LaunchScreen.storyboard */; };
+		0A4ACC78239F92A000D08683 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0A4ACC77239F92A000D08683 /* GoogleService-Info.plist */; };
 		0A64EB9F2393A18C00166D41 /* SpecialDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A64EB9E2393A18C00166D41 /* SpecialDay.swift */; };
 		0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0A7684CF2392B31F00DEC735 /* Calendar_data.xcdatamodeld */; };
 		0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* CalendarViewController.swift */; };
@@ -48,6 +49,7 @@
 		0A419C042378EF9500CB415D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0A419C072378EF9500CB415D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0A419C092378EF9500CB415D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0A4ACC77239F92A000D08683 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0A64EB9E2393A18C00166D41 /* SpecialDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecialDay.swift; sourceTree = "<group>"; };
 		0A7684D02392B31F00DEC735 /* Calendar_data.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Calendar_data.xcdatamodel; sourceTree = "<group>"; };
 		0A86C927238B814B007F3576 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
@@ -115,6 +117,7 @@
 				0A419C092378EF9500CB415D /* Info.plist */,
 				0A09C3362392507600871FD6 /* Utils.swift */,
 				0A7684CF2392B31F00DEC735 /* Calendar_data.xcdatamodeld */,
+				0A4ACC77239F92A000D08683 /* GoogleService-Info.plist */,
 			);
 			path = MyCalendar;
 			sourceTree = "<group>";
@@ -231,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A419C082378EF9500CB415D /* LaunchScreen.storyboard in Resources */,
+				0A4ACC78239F92A000D08683 /* GoogleService-Info.plist in Resources */,
 				0A419C052378EF9500CB415D /* Assets.xcassets in Resources */,
 				0A419C032378EF9400CB415D /* Main.storyboard in Resources */,
 			);
@@ -265,14 +269,22 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/MJRefresh/MJRefresh.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJRefresh.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

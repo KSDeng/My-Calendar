@@ -20,6 +20,10 @@
 // 顶部的title展示目前所在的时间范围
 // 赛事爬虫！
 
+// MARK: Bugs
+// 1. 添加事件的时候通知选"无"，再展示，发现显示"提前30分钟通知"
+// 2. 添加事件时自定义开始时间和结束时间，点“添加邀请对象”，再返回，时间又变成默认时间
+
 import UIKit
 import Foundation
 import MJRefresh

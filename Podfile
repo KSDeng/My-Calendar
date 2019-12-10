@@ -11,5 +11,9 @@ target 'MyCalendar' do
   pod 'Alamofire'
   pod 'MJRefresh'
   pod 'SwiftyJSON'
+  pod 'Firebase/Core'
+  pod 'Firebase/Database'
+  pod 'Firebase/Analytics'
+  pod 'Firebase/Auth'
 
 end

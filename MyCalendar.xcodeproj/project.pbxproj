@@ -21,6 +21,9 @@
 		0A86C928238B814B007F3576 /* CalendarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C927238B814B007F3576 /* CalendarViewController.swift */; };
 		0A86C92C238B828F007F3576 /* EventProcessController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A86C92B238B828F007F3576 /* EventProcessController.swift */; };
 		0A9077CE238BA89300FFF1EE /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9077CD238BA89300FFF1EE /* CalendarCell.swift */; };
+		0A92DB49239FCE4C006ECDD7 /* LogInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92DB48239FCE4C006ECDD7 /* LogInViewController.swift */; };
+		0A92DB4B239FCE5A006ECDD7 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92DB4A239FCE5A006ECDD7 /* SignUpViewController.swift */; };
+		0AA8E615239FEAAE0091BB61 /* FirebaseAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA8E614239FEAAE0091BB61 /* FirebaseAuthManager.swift */; };
 		0AB14DB72399276D00D3581F /* InvitationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DB62399276D00D3581F /* InvitationViewController.swift */; };
 		0AB14DB923992C0900D3581F /* InvitationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DB823992C0900D3581F /* InvitationCell.swift */; };
 		0AB14DBB239930A000D3581F /* InvitationTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */; };
@@ -55,6 +58,9 @@
 		0A86C927238B814B007F3576 /* CalendarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewController.swift; sourceTree = "<group>"; };
 		0A86C92B238B828F007F3576 /* EventProcessController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventProcessController.swift; sourceTree = "<group>"; };
 		0A9077CD238BA89300FFF1EE /* CalendarCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
+		0A92DB48239FCE4C006ECDD7 /* LogInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogInViewController.swift; sourceTree = "<group>"; };
+		0A92DB4A239FCE5A006ECDD7 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
+		0AA8E614239FEAAE0091BB61 /* FirebaseAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthManager.swift; sourceTree = "<group>"; };
 		0AB14DB62399276D00D3581F /* InvitationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationViewController.swift; sourceTree = "<group>"; };
 		0AB14DB823992C0900D3581F /* InvitationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationCell.swift; sourceTree = "<group>"; };
 		0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvitationTableViewController.swift; sourceTree = "<group>"; };
@@ -132,6 +138,8 @@
 				0AB14DB62399276D00D3581F /* InvitationViewController.swift */,
 				0AB14DBA239930A000D3581F /* InvitationTableViewController.swift */,
 				0ABD2233239E38BB00C50747 /* CustomizeNotificationController.swift */,
+				0A92DB48239FCE4C006ECDD7 /* LogInViewController.swift */,
+				0A92DB4A239FCE5A006ECDD7 /* SignUpViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -152,6 +160,7 @@
 				0AD9AA5C239A8DF000D3F0CE /* CachedInvitation.swift */,
 				0ABD222B239E10F600C50747 /* Notification.swift */,
 				0ABD2231239E282900C50747 /* CachedNotification.swift */,
+				0AA8E614239FEAAE0091BB61 /* FirebaseAuthManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -269,20 +278,28 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-MyCalendar/Pods-MyCalendar-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/MJRefresh/MJRefresh.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf/protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MJRefresh.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/protobuf.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
 			);
@@ -301,6 +318,7 @@
 				0A419BFC2378EF9400CB415D /* AppDelegate.swift in Sources */,
 				0AD9AA5D239A8DF000D3F0CE /* CachedInvitation.swift in Sources */,
 				0AD9AA5A239A8D6500D3F0CE /* Task+CoreDataClass.swift in Sources */,
+				0AA8E615239FEAAE0091BB61 /* FirebaseAuthManager.swift in Sources */,
 				0ABAD6C52394F597005AE563 /* LocationSearchResultViewController.swift in Sources */,
 				0A7684D12392B31F00DEC735 /* Calendar_data.xcdatamodeld in Sources */,
 				0ABD222F239E121000C50747 /* Notification+CoreDataClass.swift in Sources */,
@@ -321,6 +339,8 @@
 				0A16E4652390DFE1003685C1 /* TaskView.swift in Sources */,
 				0AD9AA59239A8D6500D3F0CE /* Invitation+CoreDataProperties.swift in Sources */,
 				0ABD2234239E38BB00C50747 /* CustomizeNotificationController.swift in Sources */,
+				0A92DB49239FCE4C006ECDD7 /* LogInViewController.swift in Sources */,
+				0A92DB4B239FCE5A006ECDD7 /* SignUpViewController.swift in Sources */,
 				0A419BFE2378EF9400CB415D /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

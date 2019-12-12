@@ -133,7 +133,8 @@ class CalendarViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // https://www.tutorialspoint.com/how-to-hide-back-button-on-navigation-bar-on-iphone-ipad
+        self.navigationItem.setHidesBackButton(true, animated: false)
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 

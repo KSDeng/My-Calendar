@@ -14,11 +14,14 @@
 // 5. https://digitalleaves.com/segues-navigation-ios-basics/
 
 // MARK: TODOs
-// 用户登录和验证
 // 只有列表视图翻起来不方便，最好再加上日历视图
 // 无事务且无节假日的日期可以缩略显示
+// 一个tableview定制多种Cell
+// https://medium.com/@stasost/ios-how-to-build-a-table-view-with-multiple-cell-types-2df91a206429
+// https://www.journaldev.com/15077/ios-uitableview-multiple-cell-types
 // 顶部的title展示目前所在的时间范围
-// 赛事爬虫！
+// 联系人头像
+// https://stackoverflow.com/questions/51100121/how-to-generate-an-uiimage-from-custom-text-in-swift
 
 // MARK: Bugs
 // 1. 添加事件的时候通知选"无"，再展示，发现显示"提前30分钟通知"

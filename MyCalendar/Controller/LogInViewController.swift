@@ -8,6 +8,9 @@
 
 // MARK: -TODOs
 // 1. Push notification https://www.iosapptemplates.com/blog/ios-development/push-notifications-firebase-swift-5
+// 2. 登录时记住用户名 (user defaults 用上)
+// https://stackoverflow.com/questions/2800034/iphone-uitextfield-remembering-users-previous-input
+// 3. 登录后的用户界面 (tab bar)
 
 import UIKit
 
